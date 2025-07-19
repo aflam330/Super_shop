@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard - Super Shop Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="js/realtime.js"></script>
+    <style>
+        .theme-blue { background-color: #3b82f6; }
+        .theme-green { background-color: #10b981; }
+        .theme-pink { background-color: #ec4899; }
+        .theme-yellow { background-color: #f59e42; }
+    </style>
+</head>
+<body class="theme-blue min-h-screen transition-colors duration-500">
+    <nav class="flex items-center justify-between p-4 bg-white shadow">
+        <div class="text-2xl font-bold text-blue-700">Super Shop SSMS - Receptionist</div>
+        <div>
+            <button onclick="setTheme('theme-blue')" class="w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
+            <button onclick="setTheme('theme-green')" class="w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>
+            <button onclick="setTheme('theme-pink')" class="w-6 h-6 bg-pink-500 rounded-full inline-block mx-1" title="Pink Theme"></button>
+            <button onclick="setTheme('theme-yellow')" class="w-6 h-6 bg-yellow-400 rounded-full inline-block mx-1" title="Yellow Theme"></button>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span id="receptionist-name" class="text-gray-700">Receptionist</span>
+            <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg min-h-screen">
+            <div class="p-4">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Receptionist Panel</h2>
+                <nav class="space-y-2">
+                    <button onclick="showSection('dashboard')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                        🏠 Dashboard
+                    </button>
+                    <button onclick="showSection('billing')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                        💳 Generate Bill
+                    </button>
+                    <button onclick="showSection('recommendations')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                        ⭐ Product Recommendations
+                    </button>
+                    <button onclick="showSection('returns')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                        🔄 Process Returns
+                    </button>
+                    <button onclick="showSection('reports')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                        📋 Weekly Reports
+                    </button>
+                    <button onclick="showSection('policy')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                        📜 Return Policy
+                    </button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="section">
+                <h1 class="text-3xl font-bold text-white mb-6">Receptionist Dashboard</h1>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Recent Orders</p>
+                                <p id="recent-orders" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Pending Returns</p>
+                                <p id="pending-returns" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Low Stock Items</p>
+                                <p id="low-stock-items" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Today's Sales</p>
+                                <p id="today-sales" class="text-2xl font-semibold text-gray-900">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+                        <div class="space-y-3">
+                            <button onclick="showSection('billing')" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Generate New Bill
+                            </button>
+                            <button onclick="showSection('returns')" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                                Process Returns
+                            </button>
+                            <button onclick="showSection('recommendations')" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                View Recommendations
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
+                        <div id="recent-orders-list" class="space-y-2 text-sm text-gray-600">
+                            <div>Loading recent orders...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Section -->
+            <div id="billing-section" class="section hidden">
+                <h1 class="text-3xl font-bold text-white mb-6">Generate Bill</h1>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Product Selection -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Select Products</h3>
+                            <div class="mb-4">
+                                <input type="text" id="product-search" placeholder="Search products..." 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div id="products-list" class="space-y-2 max-h-96 overflow-y-auto">
+                                <div class="text-gray-500">Loading products...</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bill Summary -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Bill Summary</h3>
+                            <div id="bill-items" class="space-y-2 mb-4">
+                                <div class="text-gray-500">No items selected</div>
+                            </div>
+                            
+                            <div class="border-t pt-4">
+                                <div class="flex justify-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span id="subtotal">$0.00</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span>Tax (10%):</span>
+                                    <span id="tax-amount">$0.00</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span>Discount:</span>
+                                    <span id="discount-amount">$0.00</span>
+                                </div>
+                                <div class="flex justify-between font-bold text-lg">
+                                    <span>Total:</span>
+                                    <span id="total-amount">$0.00</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="generateBill()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 mt-4">
+                                Generate Bill
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Recommendations Section -->
+            <div id="recommendations-section" class="section hidden">
+                <h1 class="text-3xl font-bold text-white mb-6">Product Recommendations</h1>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Top Rated Products -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Rated Products</h3>
+                        <div id="top-rated-products" class="space-y-3">
+                            <div class="text-gray-500">Loading top rated products...</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trending Products -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Trending Products</h3>
+                        <div id="trending-products" class="space-y-3">
+                            <div class="text-gray-500">Loading trending products...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returns Section -->
+            <div id="returns-section" class="section hidden">
+                <h1 class="text-3xl font-bold text-white mb-6">Process Returns</h1>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Pending Returns</h3>
+                    <div id="pending-returns-list" class="space-y-4">
+                        <div class="text-gray-500">Loading pending returns...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Reports Section -->
+            <div id="reports-section" class="section hidden">
+                <h1 class="text-3xl font-bold text-white mb-6">Weekly Reports</h1>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Submit Weekly Report</h3>
+                        <button onclick="loadReportsHistory()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            View History
+                        </button>
+                    </div>
+                    
+                    <form id="weekly-report-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Week Start Date</label>
+                                <input type="date" id="week-start" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Week End Date</label>
+                                <input type="date" id="week-end" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Customer Feedback Summary</label>
+                            <textarea id="feedback-summary" rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                      placeholder="Summarize customer feedback and satisfaction levels..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+                            <textarea id="notes" rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                      placeholder="Any additional observations or recommendations..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                            Submit Report
+                        </button>
+                    </form>
+                    
+                    <div id="reports-history" class="mt-8 hidden">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Previous Reports</h4>
+                        <div id="reports-list" class="space-y-4">
+                            <!-- Reports will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Return Policy Section -->
+            <div id="policy-section" class="section hidden">
+                <h1 class="text-3xl font-bold text-white mb-6">Return Policy</h1>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Return Policy Information</h3>
+                    <div id="return-policy-info" class="space-y-4">
+                        <div class="text-gray-500">Loading return policy...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Message Display -->
+    <div id="message" class="fixed top-4 right-4 hidden z-50"></div>
+
+    <script>
+        let currentSection = 'dashboard';
+        let selectedProducts = [];
+        let allProducts = [];
+
+        // Dynamic color theme switcher
+        function setTheme(color) {
+            document.documentElement.style.setProperty('--tw-bg-opacity', '1');
+            document.body.className = color;
+        }
+
+        // Check authentication
+        function checkAuth() {
+            const user = localStorage.getItem('user');
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const userData = JSON.parse(user);
+            if (userData.role !== 'receptionist') {
+                alert('Access denied. Receptionist privileges required.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            document.getElementById('receptionist-name').textContent = `${userData.first_name} ${userData.last_name}`;
+        }
+
+        // Logout function
+        function logout() {
+            fetch('backend/api/auth.php?action=logout', {
+                method: 'POST'
+            }).finally(() => {
+                localStorage.removeItem('user');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
+            });
+        }
+
+        // Navigation
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-blue-50'));
+            
+            // Show selected section
+            document.getElementById(`${section}-section`).classList.remove('hidden');
+            event.target.classList.add('bg-blue-50');
+            
+            currentSection = section;
+            
+            // Load section data
+            switch(section) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'billing':
+                    loadProductsForBilling();
+                    break;
+                case 'recommendations':
+                    loadRecommendations();
+                    break;
+                case 'returns':
+                    loadPendingReturns();
+                    break;
+                case 'reports':
+                    loadReportsData();
+                    break;
+                case 'policy':
+                    loadReturnPolicy();
+                    break;
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('backend/api/receptionist.php?action=assistance_data');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('recent-orders').textContent = data.data.recent_orders.length;
+                    document.getElementById('pending-returns').textContent = data.data.pending_returns.length;
+                    document.getElementById('low-stock-items').textContent = data.data.low_stock_products.length;
+                    
+                    // Display recent orders
+                    const ordersList = document.getElementById('recent-orders-list');
+                    ordersList.innerHTML = '';
+                    
+                    data.data.recent_orders.forEach(order => {
+                        const orderDiv = document.createElement('div');
+                        orderDiv.className = 'flex justify-between items-center p-2 bg-gray-50 rounded';
+                        orderDiv.innerHTML = `
+                            <div>
+                                <div class="font-medium">${order.order_number}</div>
+                                <div class="text-xs text-gray-500">${order.customer_name}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">$${order.final_amount}</div>
+                                <div class="text-xs text-gray-500">${order.order_status}</div>
+                            </div>
+                        `;
+                        ordersList.appendChild(orderDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load products for billing
+        async function loadProductsForBilling() {
+            try {
+                const response = await fetch('backend/api/products.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allProducts = data.data;
+                    displayProducts(allProducts);
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Display products in billing section
+        function displayProducts(products) {
+            const productsList = document.getElementById('products-list');
+            productsList.innerHTML = '';
+            
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'flex justify-between items-center p-3 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer';
+                productDiv.innerHTML = `
+                    <div>
+                        <div class="font-medium">${product.name}</div>
+                        <div class="text-sm text-gray-500">Stock: ${product.stock_quantity} | $${product.price}</div>
+                    </div>
+                    <button onclick="addToBill(${product.id})" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                        Add
+                    </button>
+                `;
+                productsList.appendChild(productDiv);
+            });
+        }
+
+        // Add product to bill
+        function addToBill(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = selectedProducts.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                selectedProducts.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            updateBillDisplay();
+        }
+
+        // Update bill display
+        function updateBillDisplay() {
+            const billItems = document.getElementById('bill-items');
+            const subtotal = selectedProducts.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.10;
+            const discount = subtotal > 100 ? subtotal * 0.05 : 0;
+            const total = subtotal + tax - discount;
+            
+            billItems.innerHTML = '';
+            selectedProducts.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flex justify-between items-center p-2 bg-gray-50 rounded';
+                itemDiv.innerHTML = `
+                    <div>
+                        <div class="font-medium">${item.name}</div>
+                        <div class="text-sm text-gray-500">Qty: ${item.quantity} × $${item.price}</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-medium">$${(item.price * item.quantity).toFixed(2)}</span>
+                        <button onclick="removeFromBill(${item.id})" class="text-red-600 hover:text-red-800">×</button>
+                    </div>
+                `;
+                billItems.appendChild(itemDiv);
+            });
+            
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tax-amount').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('discount-amount').textContent = `$${discount.toFixed(2)}`;
+            document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Remove product from bill
+        function removeFromBill(productId) {
+            selectedProducts = selectedProducts.filter(item => item.id !== productId);
+            updateBillDisplay();
+        }
+
+        // Generate bill
+        async function generateBill() {
+            if (selectedProducts.length === 0) {
+                showMessage('Please select at least one product', 'error');
+                return;
+            }
+            
+            const customerInfo = {
+                name: prompt('Enter customer name:'),
+                email: prompt('Enter customer email (optional):'),
+                phone: prompt('Enter customer phone (optional):'),
+                address: prompt('Enter customer address (optional):')
+            };
+            
+            if (!customerInfo.name) {
+                showMessage('Customer name is required', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('backend/api/receptionist.php?action=generate_bill', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        items: selectedProducts,
+                        customer_info: customerInfo,
+                        payment_method: 'cash'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Bill generated successfully!', 'success');
+                    selectedProducts = [];
+                    updateBillDisplay();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error generating bill', 'error');
+            }
+        }
+
+        // Load recommendations
+        async function loadRecommendations() {
+            try {
+                // Load top rated products
+                const topRatedResponse = await fetch('backend/api/receptionist.php?action=top_rated');
+                const topRatedData = await topRatedResponse.json();
+                
+                if (topRatedData.success) {
+                    const topRatedDiv = document.getElementById('top-rated-products');
+                    topRatedDiv.innerHTML = '';
+                    
+                    topRatedData.data.products.forEach(product => {
+                        const productDiv = document.createElement('div');
+                        productDiv.className = 'flex justify-between items-center p-3 border border-gray-200 rounded';
+                        productDiv.innerHTML = `
+                            <div>
+                                <div class="font-medium">${product.name}</div>
+                                <div class="text-sm text-gray-500">Rating: ${product.avg_rating.toFixed(1)}/5 (${product.review_count} reviews)</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">$${product.price}</div>
+                                <div class="text-sm text-gray-500">Stock: ${product.stock_quantity}</div>
+                            </div>
+                        `;
+                        topRatedDiv.appendChild(productDiv);
+                    });
+                }
+                
+                // Load trending products
+                const trendingResponse = await fetch('backend/api/receptionist.php?action=trending');
+                const trendingData = await trendingResponse.json();
+                
+                if (trendingData.success) {
+                    const trendingDiv = document.getElementById('trending-products');
+                    trendingDiv.innerHTML = '';
+                    
+                    trendingData.data.products.forEach(product => {
+                        const productDiv = document.createElement('div');
+                        productDiv.className = 'flex justify-between items-center p-3 border border-gray-200 rounded';
+                        productDiv.innerHTML = `
+                            <div>
+                                <div class="font-medium">${product.name}</div>
+                                <div class="text-sm text-gray-500">Sold: ${product.total_sold} units</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">$${product.price}</div>
+                                <div class="text-sm text-gray-500">Stock: ${product.stock_quantity}</div>
+                            </div>
+                        `;
+                        trendingDiv.appendChild(productDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading recommendations:', error);
+            }
+        }
+
+        // Load pending returns
+        async function loadPendingReturns() {
+            try {
+                const response = await fetch('backend/api/receptionist.php?action=assistance_data');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const returnsList = document.getElementById('pending-returns-list');
+                    returnsList.innerHTML = '';
+                    
+                    data.data.pending_returns.forEach(returnItem => {
+                        const returnDiv = document.createElement('div');
+                        returnDiv.className = 'border border-gray-200 rounded-lg p-4';
+                        returnDiv.innerHTML = `
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="font-medium">${returnItem.product_name}</h4>
+                                    <p class="text-sm text-gray-500">Order: ${returnItem.order_number}</p>
+                                    <p class="text-sm text-gray-500">Customer: ${returnItem.customer_name}</p>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                            </div>
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600">Reason:</p>
+                                <p class="text-sm">${returnItem.return_reason}</p>
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="processReturn(${returnItem.id}, 'approve')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
+                                <button onclick="processReturn(${returnItem.id}, 'reject')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Reject</button>
+                            </div>
+                        `;
+                        returnsList.appendChild(returnDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading pending returns:', error);
+            }
+        }
+
+        // Process return
+        async function processReturn(returnId, action) {
+            try {
+                const response = await fetch('backend/api/receptionist.php?action=process_return', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        return_id: returnId,
+                        action: action,
+                        notes: prompt('Enter notes (optional):')
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`Return ${action}d successfully`, 'success');
+                    loadPendingReturns();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error processing return', 'error');
+            }
+        }
+
+        // Load return policy
+        async function loadReturnPolicy() {
+            try {
+                const response = await fetch('backend/api/receptionist.php?action=return_policy');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const policyDiv = document.getElementById('return-policy-info');
+                    const policy = data.data.return_policy;
+                    
+                    policyDiv.innerHTML = `
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <h4 class="font-semibold text-blue-800 mb-2">Return Period</h4>
+                            <p class="text-blue-700">${policy.return_period} days from purchase date</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Conditions</h4>
+                            <ul class="list-disc list-inside space-y-1 text-gray-600">
+                                ${policy.conditions.map(condition => `<li>${condition}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">Process</h4>
+                            <ol class="list-decimal list-inside space-y-1 text-gray-600">
+                                ${policy.process.map(step => `<li>${step}</li>`).join('')}
+                            </ol>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading return policy:', error);
+            }
+        }
+
+        // Load reports data
+        function loadReportsData() {
+            // Set default dates for current week
+            const today = new Date();
+            const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+            const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+            
+            document.getElementById('week-start').value = startOfWeek.toISOString().split('T')[0];
+            document.getElementById('week-end').value = endOfWeek.toISOString().split('T')[0];
+        }
+
+        // Load reports history
+        function loadReportsHistory() {
+            const historyDiv = document.getElementById('reports-history');
+            historyDiv.classList.toggle('hidden');
+        }
+
+        // Weekly report form submission
+        document.getElementById('weekly-report-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                week_start_date: document.getElementById('week-start').value,
+                week_end_date: document.getElementById('week-end').value,
+                customer_feedback_summary: document.getElementById('feedback-summary').value,
+                notes: document.getElementById('notes').value
+            };
+            
+            try {
+                const response = await fetch('backend/api/receptionist.php?action=submit_report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Weekly report submitted successfully!', 'success');
+                    document.getElementById('weekly-report-form').reset();
+                    loadReportsData();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error submitting report', 'error');
+            }
+        });
+
+        // Product search functionality
+        document.getElementById('product-search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredProducts = allProducts.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            displayProducts(filteredProducts);
+        });
+
+        // Show message function
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Initialize dashboard
+        window.addEventListener('load', function() {
+            checkAuth();
+            loadDashboardData();
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Shop - Real-Time Experience</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="js/realtime.js"></script>
+  <script>
+    // Dynamic color theme switcher
+    function setTheme(color) {
+      document.documentElement.style.setProperty('--tw-bg-opacity', '1');
+      document.body.className = color;
+    }
+    
+    // Add to cart functionality
+    function addToCart(productId, productName, price) {
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      let existingItem = cart.find(item => item.id === productId);
+      
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({
+          id: productId,
+          name: productName,
+          price: parseFloat(price),
+          quantity: 1
+        });
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      // Show notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded shadow-lg z-50';
+      notification.innerHTML = `${productName} added to cart!`;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 2000);
+    }
+    
+    // Simulate real-time featured/trending/offers
+    function updateLiveSections() {
+      const products = [
+        {name: 'Smart Watch', stock: 15, price: 99.99},
+        {name: 'Wireless Earbuds', stock: 25, price: 49.99},
+        {name: 'Laptop', stock: 8, price: 899.99},
+        {name: 'Smartphone', stock: 12, price: 599.99},
+        {name: 'Running Shoes', stock: 30, price: 79.99},
+        {name: 'Coffee Maker', stock: 12, price: 129.99}
+      ];
+      
+      const featured = products[Math.floor(Math.random() * products.length)];
+      const trending = products[Math.floor(Math.random() * products.length)];
+      
+      document.getElementById('featured').innerHTML = `
+        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+          <div class="font-bold text-lg">${featured.name}</div>
+          <div class="text-sm text-gray-600">Stock: ${featured.stock} | Price: $${featured.price}</div>
+          <button onclick="addToCart(${featured.name === 'Smart Watch' ? 1 : featured.name === 'Wireless Earbuds' ? 2 : featured.name === 'Laptop' ? 3 : featured.name === 'Smartphone' ? 5 : featured.name === 'Running Shoes' ? 7 : 12}, '${featured.name}', ${featured.price})" class="mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Add to Cart</button>
+        </div>
+      `;
+      
+      document.getElementById('trending').innerHTML = `
+        <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+          <div class="font-bold text-lg">${trending.name}</div>
+          <div class="text-sm text-gray-600">Stock: ${trending.stock} | Price: $${trending.price}</div>
+          <button onclick="addToCart(${trending.name === 'Smart Watch' ? 1 : trending.name === 'Wireless Earbuds' ? 2 : trending.name === 'Laptop' ? 3 : trending.name === 'Smartphone' ? 5 : trending.name === 'Running Shoes' ? 7 : 12}, '${trending.name}', ${trending.price})" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Add to Cart</button>
+        </div>
+      `;
+      
+      document.getElementById('offers').innerHTML = `
+        <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+          <div class="font-bold text-lg text-yellow-800">🎉 Special Offers!</div>
+          <div class="text-sm text-yellow-700">20% off on Electronics | Free shipping on orders above $100</div>
+        </div>
+      `;
+    }
+    
+    setInterval(updateLiveSections, 3000);
+    
+    // Check authentication status and update UI
+    function checkAuthStatus() {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      const authLinks = document.getElementById('auth-links');
+      const userInfo = document.getElementById('user-info');
+      const historyLink = document.getElementById('history-link');
+      
+      if (user) {
+        authLinks.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        document.getElementById('user-name').textContent = user.first_name || user.username;
+        // Hide the main history link since it's now in user-info
+        historyLink.classList.add('hidden');
+      } else {
+        authLinks.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        // Show the main history link for non-logged in users
+        historyLink.classList.remove('hidden');
+      }
+    }
+    
+    // Logout function
+    function logout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userRole');
+      checkAuthStatus();
+      window.location.href = 'index.html';
+    }
+    
+    window.onload = function() {
+      updateLiveSections();
+      checkAuthStatus();
+    };
+  </script>
+  <style>
+    .theme-blue { background-color: #3b82f6; }
+    .theme-green { background-color: #10b981; }
+    .theme-pink { background-color: #ec4899; }
+    .theme-yellow { background-color: #f59e42; }
+  </style>
+</head>
+<body class="theme-blue min-h-screen transition-colors duration-500">
+  <nav class="flex items-center justify-between p-4 bg-white shadow">
+    <div class="text-2xl font-bold text-blue-700">Super Shop</div>
+    <div>
+      <button onclick="setTheme('theme-blue')" class="w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
+      <button onclick="setTheme('theme-green')" class="w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>
+      <button onclick="setTheme('theme-pink')" class="w-6 h-6 bg-pink-500 rounded-full inline-block mx-1" title="Pink Theme"></button>
+      <button onclick="setTheme('theme-yellow')" class="w-6 h-6 bg-yellow-400 rounded-full inline-block mx-1" title="Yellow Theme"></button>
+    </div>
+    <div>
+      <a href="catalog.html" class="mx-2 text-gray-700 hover:text-blue-700">Catalog</a>
+      <a href="cart.html" class="mx-2 text-gray-700 hover:text-blue-700">Cart</a>
+      <a href="orders.html" class="mx-2 text-gray-700 hover:text-blue-700">Orders</a>
+      <a href="my-orders.php" class="mx-2 text-gray-700 hover:text-blue-700" id="history-link">History</a>
+      <a href="returns.html" class="mx-2 text-gray-700 hover:text-blue-700">Returns</a>
+      <a href="feedback.html" class="mx-2 text-gray-700 hover:text-blue-700">Feedback</a>
+      <span id="auth-links">
+        <a href="login.html" class="mx-2 text-gray-700 hover:text-blue-700">Login</a>
+        <a href="register.html" class="mx-2 text-gray-700 hover:text-blue-700">Register</a>
+      </span>
+      <span id="user-info" class="hidden">
+        <a href="my-orders.php" class="mx-2 text-gray-700 hover:text-blue-700">History</a>
+        <span id="user-name" class="mx-2 text-gray-700"></span>
+        <button onclick="logout()" class="mx-2 text-red-600 hover:text-red-700">Logout</button>
+      </span>
+    </div>
+  </nav>
+  
+  <main class="max-w-7xl mx-auto py-8">
+    <!-- Hero Section -->
+    <section class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-white mb-4">Welcome to Super Shop</h1>
+      <p class="text-xl text-white mb-6">Real-time shopping experience with live updates</p>
+      <a href="catalog.html" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">Shop Now</a>
+    </section>
+    
+    <!-- Live Sections -->
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-4 text-white">Live Updates</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <h3 class="text-lg font-semibold mb-2 text-white">Featured Products</h3>
+          <div id="featured" class="bg-white p-4 rounded shadow"></div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-2 text-white">Trending Now</h3>
+          <div id="trending" class="bg-white p-4 rounded shadow"></div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-2 text-white">Weekly Offers</h3>
+          <div id="offers" class="bg-white p-4 rounded shadow"></div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- All Products Grid -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold mb-6 text-white">All Products</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <!-- Electronics -->
+        <div class="bg-white p-3 rounded shadow" data-product-id="1">
+          <img src="https://via.placeholder.com/200/3B82F6/FFFFFF?text=Smart+Watch" alt="Smart Watch" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Smart Watch</div>
+          <div class="stock text-green-600 text-xs">Stock: 15</div>
+          <div class="text-gray-700 text-sm mb-2">$99.99</div>
+          <button onclick="addToCart(1, 'Smart Watch', 99.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="2">
+          <img src="https://via.placeholder.com/200/10B981/FFFFFF?text=Wireless+Earbuds" alt="Wireless Earbuds" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Wireless Earbuds</div>
+          <div class="stock text-green-600 text-xs">Stock: 25</div>
+          <div class="text-gray-700 text-sm mb-2">$49.99</div>
+          <button onclick="addToCart(2, 'Wireless Earbuds', 49.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="3">
+          <img src="https://via.placeholder.com/200/EF4444/FFFFFF?text=Laptop" alt="Laptop" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Laptop</div>
+          <div class="stock text-green-600 text-xs">Stock: 8</div>
+          <div class="text-gray-700 text-sm mb-2">$899.99</div>
+          <button onclick="addToCart(3, 'Laptop', 899.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="4">
+          <img src="https://via.placeholder.com/200/8B5CF6/FFFFFF?text=Bluetooth+Speaker" alt="Bluetooth Speaker" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Bluetooth Speaker</div>
+          <div class="stock text-green-600 text-xs">Stock: 20</div>
+          <div class="text-gray-700 text-sm mb-2">$89.99</div>
+          <button onclick="addToCart(4, 'Bluetooth Speaker', 89.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="5">
+          <img src="https://via.placeholder.com/200/F59E0B/FFFFFF?text=Smartphone" alt="Smartphone" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Smartphone</div>
+          <div class="stock text-green-600 text-xs">Stock: 12</div>
+          <div class="text-gray-700 text-sm mb-2">$599.99</div>
+          <button onclick="addToCart(5, 'Smartphone', 599.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="6">
+          <img src="https://via.placeholder.com/200/EC4899/FFFFFF?text=Tablet" alt="Tablet" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Tablet</div>
+          <div class="stock text-green-600 text-xs">Stock: 18</div>
+          <div class="text-gray-700 text-sm mb-2">$299.99</div>
+          <button onclick="addToCart(6, 'Tablet', 299.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <!-- Fashion -->
+        <div class="bg-white p-3 rounded shadow" data-product-id="7">
+          <img src="https://via.placeholder.com/200/06B6D4/FFFFFF?text=Running+Shoes" alt="Running Shoes" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Running Shoes</div>
+          <div class="stock text-green-600 text-xs">Stock: 30</div>
+          <div class="text-gray-700 text-sm mb-2">$79.99</div>
+          <button onclick="addToCart(7, 'Running Shoes', 79.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="8">
+          <img src="https://via.placeholder.com/200/84CC16/FFFFFF?text=Denim+Jacket" alt="Denim Jacket" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Denim Jacket</div>
+          <div class="stock text-green-600 text-xs">Stock: 22</div>
+          <div class="text-gray-700 text-sm mb-2">$69.99</div>
+          <button onclick="addToCart(8, 'Denim Jacket', 69.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="9">
+          <img src="https://via.placeholder.com/200/F97316/FFFFFF?text=Leather+Bag" alt="Leather Bag" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Leather Bag</div>
+          <div class="stock text-green-600 text-xs">Stock: 15</div>
+          <div class="text-gray-700 text-sm mb-2">$129.99</div>
+          <button onclick="addToCart(9, 'Leather Bag', 129.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="10">
+          <img src="https://via.placeholder.com/200/6366F1/FFFFFF?text=Sunglasses" alt="Sunglasses" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Sunglasses</div>
+          <div class="stock text-green-600 text-xs">Stock: 35</div>
+          <div class="text-gray-700 text-sm mb-2">$39.99</div>
+          <button onclick="addToCart(10, 'Sunglasses', 39.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="11">
+          <img src="https://via.placeholder.com/200/A855F7/FFFFFF?text=Wristwatch" alt="Wristwatch" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Wristwatch</div>
+          <div class="stock text-green-600 text-xs">Stock: 10</div>
+          <div class="text-gray-700 text-sm mb-2">$159.99</div>
+          <button onclick="addToCart(11, 'Wristwatch', 159.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <!-- Home & Living -->
+        <div class="bg-white p-3 rounded shadow" data-product-id="12">
+          <img src="https://via.placeholder.com/200/DC2626/FFFFFF?text=Coffee+Maker" alt="Coffee Maker" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Coffee Maker</div>
+          <div class="stock text-green-600 text-xs">Stock: 12</div>
+          <div class="text-gray-700 text-sm mb-2">$129.99</div>
+          <button onclick="addToCart(12, 'Coffee Maker', 129.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="13">
+          <img src="https://via.placeholder.com/200/EA580C/FFFFFF?text=Bedside+Lamp" alt="Bedside Lamp" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Bedside Lamp</div>
+          <div class="stock text-green-600 text-xs">Stock: 28</div>
+          <div class="text-gray-700 text-sm mb-2">$45.99</div>
+          <button onclick="addToCart(13, 'Bedside Lamp', 45.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="14">
+          <img src="https://via.placeholder.com/200/CA8A04/FFFFFF?text=Kitchen+Mixer" alt="Kitchen Mixer" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Kitchen Mixer</div>
+          <div class="stock text-green-600 text-xs">Stock: 8</div>
+          <div class="text-gray-700 text-sm mb-2">$199.99</div>
+          <button onclick="addToCart(14, 'Kitchen Mixer', 199.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="15">
+          <img src="https://via.placeholder.com/200/65A30D/FFFFFF?text=Wall+Clock" alt="Wall Clock" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Wall Clock</div>
+          <div class="stock text-green-600 text-xs">Stock: 40</div>
+          <div class="text-gray-700 text-sm mb-2">$29.99</div>
+          <button onclick="addToCart(15, 'Wall Clock', 29.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="16">
+          <img src="https://via.placeholder.com/200/0891B2/FFFFFF?text=Throw+Pillow" alt="Throw Pillow" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Throw Pillow</div>
+          <div class="stock text-green-600 text-xs">Stock: 50</div>
+          <div class="text-gray-700 text-sm mb-2">$24.99</div>
+          <button onclick="addToCart(16, 'Throw Pillow', 24.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <!-- Sports & Fitness -->
+        <div class="bg-white p-3 rounded shadow" data-product-id="17">
+          <img src="https://via.placeholder.com/200/7C3AED/FFFFFF?text=Yoga+Mat" alt="Yoga Mat" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Yoga Mat</div>
+          <div class="stock text-green-600 text-xs">Stock: 25</div>
+          <div class="text-gray-700 text-sm mb-2">$34.99</div>
+          <button onclick="addToCart(17, 'Yoga Mat', 34.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="18">
+          <img src="https://via.placeholder.com/200/DB2777/FFFFFF?text=Dumbbells+Set" alt="Dumbbells Set" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Dumbbells Set</div>
+          <div class="stock text-green-600 text-xs">Stock: 6</div>
+          <div class="text-gray-700 text-sm mb-2">$149.99</div>
+          <button onclick="addToCart(18, 'Dumbbells Set', 149.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="19">
+          <img src="https://via.placeholder.com/200/059669/FFFFFF?text=Basketball" alt="Basketball" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Basketball</div>
+          <div class="stock text-green-600 text-xs">Stock: 20</div>
+          <div class="text-gray-700 text-sm mb-2">$49.99</div>
+          <button onclick="addToCart(19, 'Basketball', 49.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <!-- Books & Stationery -->
+        <div class="bg-white p-3 rounded shadow" data-product-id="20">
+          <img src="https://via.placeholder.com/200/1E40AF/FFFFFF?text=Programming+Book" alt="Programming Book" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Programming Book</div>
+          <div class="stock text-green-600 text-xs">Stock: 15</div>
+          <div class="text-gray-700 text-sm mb-2">$39.99</div>
+          <button onclick="addToCart(20, 'Programming Book', 39.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+        
+        <div class="bg-white p-3 rounded shadow" data-product-id="21">
+          <img src="https://via.placeholder.com/200/9D174D/FFFFFF?text=Notebook+Set" alt="Notebook Set" class="w-full h-32 object-cover rounded mb-2">
+          <div class="font-semibold text-sm">Notebook Set</div>
+          <div class="stock text-green-600 text-xs">Stock: 30</div>
+          <div class="text-gray-700 text-sm mb-2">$19.99</div>
+          <button onclick="addToCart(21, 'Notebook Set', 19.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-4 text-white">Why Shop With Us?</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl mb-2">⚡</div>
+          <h3 class="font-semibold mb-2">Live Stock Updates</h3>
+          <p class="text-sm text-gray-600">Real-time inventory tracking</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl mb-2">🚚</div>
+          <h3 class="font-semibold mb-2">Instant Order Tracking</h3>
+          <p class="text-sm text-gray-600">Live status updates</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl mb-2">🔄</div>
+          <h3 class="font-semibold mb-2">Easy Returns</h3>
+          <p class="text-sm text-gray-600">5-day return policy</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl mb-2">💳</div>
+          <h3 class="font-semibold mb-2">Multiple Payments</h3>
+          <p class="text-sm text-gray-600">bKash, Nagad, Card</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <footer class="text-center p-4 bg-white shadow mt-8">
+    <p>&copy; 2024 Super Shop. All rights reserved.</p>
+    <p class="text-sm text-gray-600 mt-2">Real-time shopping experience with 21+ products</p>
+  </footer>
+
+  <script>
+    // Check if user is already logged in
+    window.addEventListener('load', function() {
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        
+        // Show user info in navigation
+        document.getElementById('auth-links').classList.add('hidden');
+        document.getElementById('user-info').classList.remove('hidden');
+        document.getElementById('user-name').textContent = `Welcome, ${userData.first_name}!`;
+        
+        // Redirect non-customers to their dashboards
+        if (userData.role !== 'customer') {
+          setTimeout(() => {
+            switch (userData.role) {
+              case 'receptionist':
+                window.location.href = 'receptionist-dashboard.html';
+                break;
+              case 'admin':
+                window.location.href = 'admin-dashboard.html';
+                break;
+            }
+          }, 2000);
+        }
+      }
+    });
+
+    // Logout function
+    function logout() {
+      fetch('backend/api/auth.php?action=logout', {
+        method: 'POST'
+      }).finally(() => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('userRole');
+        window.location.reload();
+      });
+    }
+  </script>
+</body>
+</html> 
