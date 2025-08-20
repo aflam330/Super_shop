@@ -17,10 +17,10 @@ switch ($method) {
             // Get specific return
             try {
                 $stmt = $pdo->prepare("
-                    SELECT r.*, o.order_id as original_order_id, o.customer_name as order_customer_name
+                    SELECT r.*, o.order_number as original_order_number, o.customer_name as order_customer_name
                     FROM returns r
                     LEFT JOIN orders o ON r.order_id = o.id
-                    WHERE r.return_id = ?
+                    WHERE r.id = ?
                 ");
                 $stmt->execute([$returnId]);
                 $return = $stmt->fetch();
@@ -35,17 +35,17 @@ switch ($method) {
             }
         } else {
             // Get all returns with optional filters
-            $sql = "SELECT r.*, o.order_id as original_order_id FROM returns r LEFT JOIN orders o ON r.order_id = o.id";
+            $sql = "SELECT r.*, o.order_number as original_order_number FROM returns r LEFT JOIN orders o ON r.order_id = o.id";
             $params = [];
             $conditions = [];
             
             if ($orderId) {
-                $conditions[] = "o.order_id = ?";
+                $conditions[] = "o.order_number = ?";
                 $params[] = validateInput($orderId);
             }
             
             if ($status) {
-                $conditions[] = "r.status = ?";
+                $conditions[] = "r.return_status = ?";
                 $params[] = validateInput($status);
             }
             
@@ -53,7 +53,7 @@ switch ($method) {
                 $sql .= " WHERE " . implode(" AND ", $conditions);
             }
             
-            $sql .= " ORDER BY r.created_at DESC";
+            $sql .= " ORDER BY r.return_date DESC";
             
             try {
                 $stmt = $pdo->prepare($sql);
@@ -83,7 +83,7 @@ switch ($method) {
         
         try {
             // Verify order exists
-            $stmt = $pdo->prepare("SELECT id FROM orders WHERE order_id = ?");
+            $stmt = $pdo->prepare("SELECT id FROM orders WHERE order_number = ?");
             $stmt->execute([$orderId]);
             $order = $stmt->fetch();
             
@@ -105,10 +105,10 @@ switch ($method) {
             
             // Create return request
             $stmt = $pdo->prepare("
-                INSERT INTO returns (return_id, order_id, customer_name, customer_email, reason, receipt_file)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO returns (order_id, user_id, product_id, return_reason, return_status)
+                VALUES (?, ?, ?, ?, 'pending')
             ");
-            $stmt->execute([$returnId, $order['id'], $customerName, $customerEmail, $reason, $receiptFile]);
+            $stmt->execute([$order['id'], null, 1, $reason]); // Using product_id = 1 as default, user_id = null for now
             
             // Add real-time event for new return
             $eventData = [
@@ -151,7 +151,7 @@ switch ($method) {
         }
         
         try {
-            $stmt = $pdo->prepare("UPDATE returns SET status = ? WHERE return_id = ?");
+            $stmt = $pdo->prepare("UPDATE returns SET return_status = ? WHERE id = ?");
             $stmt->execute([$status, $returnId]);
             
             if ($stmt->rowCount() === 0) {

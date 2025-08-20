@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">API Test</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test API Call</h2>
+            <button onclick="testAPI()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Test Sales Analytics API
+            </button>
+            <div id="result" class="mt-4 p-4 bg-gray-50 rounded"></div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Session Test</h2>
+            <button onclick="testSession()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Test Admin Session
+            </button>
+            <div id="session-result" class="mt-4 p-4 bg-gray-50 rounded"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing API...';
+            
+            try {
+                console.log('Making API call...');
+                const response = await fetch('backend/api/admin.php?action=sales_analytics&period=7');
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const text = await response.text();
+                console.log('Response text:', text);
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    resultDiv.innerHTML = `<div class="text-red-600">Error parsing JSON: ${e.message}</div><pre>${text}</pre>`;
+                    return;
+                }
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="text-green-600">✅ API Success!</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="text-red-600">❌ API Error: ${data.error}</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="text-red-600">❌ Network Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSession() {
+            const resultDiv = document.getElementById('session-result');
+            resultDiv.innerHTML = 'Testing session...';
+            
+            try {
+                const response = await fetch('admin_auth_helper.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="text-green-600">✅ Session created: ${data.message}</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="text-red-600">❌ Session error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="text-red-600">❌ Session error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html> 

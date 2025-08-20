@@ -1,78 +1,134 @@
 <?php
+// Set CORS headers before any output
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
 
+// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
+    http_response_code(200);
+    exit;
 }
 
-require_once '../config.php';
+session_start();
+require_once dirname(__FILE__) . '/../config.php';
 
-class AdminAPI {
-    private $conn;
+// Check if user is logged in and is admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized access']);
+    exit;
+}
+
+// Get request data
+$input = json_decode(file_get_contents('php://input'), true);
+$action = $_GET['action'] ?? '';
+
+try {
+    $pdo = getDBConnection();
     
-    public function __construct($conn) {
-        $this->conn = $conn;
+    switch ($action) {
+        case 'dashboard_stats':
+            handleDashboardStats($pdo);
+            break;
+            
+        case 'sales_analytics':
+            handleSalesAnalytics($pdo, $_GET);
+            break;
+            
+        case 'low_stock':
+            handleLowStockProducts($pdo);
+            break;
+            
+        case 'expired_products':
+            handleExpiredProducts($pdo);
+            break;
+            
+        case 'update_stock':
+            handleUpdateStock($pdo, $input);
+            break;
+            
+        case 'remove_expired':
+            handleRemoveExpired($pdo);
+            break;
+            
+        case 'weekly_reports':
+            handleWeeklyReports($pdo);
+            break;
+            
+        case 'review_report':
+            handleReviewReport($pdo, $input);
+            break;
+            
+        case 'settings':
+            handleGetSettings($pdo);
+            break;
+            
+        case 'update_settings':
+            handleUpdateSettings($pdo, $input);
+            break;
+            
+        case 'users':
+            handleGetUsers($pdo);
+            break;
+            
+        case 'roles':
+            handleGetRoles($pdo);
+            break;
+            
+        default:
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid action']);
+            break;
     }
     
-    // Check admin authentication
-    private function checkAdminAuth() {
-        session_start();
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-            return false;
-        }
-        return true;
-    }
-    
-    // Get dashboard statistics (FR17)
-    public function getDashboardStats() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            return $this->error('Method not allowed', 405);
-        }
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
+}
+
+function handleDashboardStats($pdo) {
+    try {
+        // Total products
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total_products FROM products WHERE is_active = 1");
+        $stmt->execute();
+        $total_products = $stmt->fetch()['total_products'];
         
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
+        // Low stock products (less than 10)
+        $stmt = $pdo->prepare("SELECT COUNT(*) as low_stock FROM products WHERE stock_quantity < 10 AND is_active = 1");
+        $stmt->execute();
+        $low_stock = $stmt->fetch()['low_stock'];
         
-        try {
-            // Total products
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as total_products FROM products WHERE is_active = 1");
-            $stmt->execute();
-            $total_products = $stmt->get_result()->fetch_assoc()['total_products'];
-            
-            // Low stock products (less than 10)
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as low_stock FROM products WHERE stock_quantity < 10 AND is_active = 1");
-            $stmt->execute();
-            $low_stock = $stmt->get_result()->fetch_assoc()['low_stock'];
-            
-            // Expired products
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as expired FROM products WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL");
-            $stmt->execute();
-            $expired = $stmt->get_result()->fetch_assoc()['expired'];
-            
-            // Total orders today
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as today_orders FROM orders WHERE DATE(created_at) = CURDATE()");
-            $stmt->execute();
-            $today_orders = $stmt->get_result()->fetch_assoc()['today_orders'];
-            
-            // Total sales today
-            $stmt = $this->conn->prepare("SELECT COALESCE(SUM(final_amount), 0) as today_sales FROM orders WHERE DATE(created_at) = CURDATE() AND payment_status = 'completed'");
-            $stmt->execute();
-            $today_sales = $stmt->get_result()->fetch_assoc()['today_sales'];
-            
-            // Total users
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as total_users FROM users WHERE is_active = 1");
-            $stmt->execute();
-            $total_users = $stmt->get_result()->fetch_assoc()['total_users'];
-            
-            // Pending returns
-            $stmt = $this->conn->prepare("SELECT COUNT(*) as pending_returns FROM returns WHERE return_status = 'pending'");
-            $stmt->execute();
-            $pending_returns = $stmt->get_result()->fetch_assoc()['pending_returns'];
-            
-            return $this->success([
+        // Expired products
+        $stmt = $pdo->prepare("SELECT COUNT(*) as expired FROM products WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL");
+        $stmt->execute();
+        $expired = $stmt->fetch()['expired'];
+        
+        // Total orders today
+        $stmt = $pdo->prepare("SELECT COUNT(*) as today_orders FROM orders WHERE DATE(created_at) = CURDATE()");
+        $stmt->execute();
+        $today_orders = $stmt->fetch()['today_orders'];
+        
+        // Total sales today
+        $stmt = $pdo->prepare("SELECT COALESCE(SUM(final_amount), 0) as today_sales FROM orders WHERE DATE(created_at) = CURDATE() AND payment_status = 'completed'");
+        $stmt->execute();
+        $today_sales = $stmt->fetch()['today_sales'];
+        
+        // Total users
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total_users FROM users WHERE is_active = 1");
+        $stmt->execute();
+        $total_users = $stmt->fetch()['total_users'];
+        
+        // Pending returns
+        $stmt = $pdo->prepare("SELECT COUNT(*) as pending_returns FROM returns WHERE return_status = 'pending'");
+        $stmt->execute();
+        $pending_returns = $stmt->fetch()['pending_returns'];
+        
+        echo json_encode([
+            'success' => true,
+            'data' => [
                 'total_products' => $total_products,
                 'low_stock' => $low_stock,
                 'expired_products' => $expired,
@@ -80,436 +136,327 @@ class AdminAPI {
                 'today_sales' => $today_sales,
                 'total_users' => $total_users,
                 'pending_returns' => $pending_returns
-            ]);
-        } catch (Exception $e) {
-            return $this->error('Failed to get dashboard stats: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Get sales analytics (FR17)
-    public function getSalesAnalytics() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        $period = $_GET['period'] ?? '7'; // Default 7 days
-        
-        try {
-            // Sales data for the period
-            $stmt = $this->conn->prepare("
-                SELECT 
-                    DATE(created_at) as date,
-                    COUNT(*) as orders,
-                    SUM(final_amount) as sales,
-                    AVG(final_amount) as avg_order_value
-                FROM orders 
-                WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-                AND payment_status = 'completed'
-                GROUP BY DATE(created_at)
-                ORDER BY date DESC
-            ");
-            $stmt->bind_param("i", $period);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $sales_data = [];
-            while ($row = $result->fetch_assoc()) {
-                $sales_data[] = $row;
-            }
-            
-            // Top selling products
-            $stmt = $this->conn->prepare("
-                SELECT 
-                    p.name,
-                    p.id,
-                    SUM(oi.quantity) as total_sold,
-                    SUM(oi.total_price) as total_revenue
-                FROM order_items oi
-                JOIN products p ON oi.product_id = p.id
-                JOIN orders o ON oi.order_id = o.id
-                WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-                AND o.payment_status = 'completed'
-                GROUP BY p.id, p.name
-                ORDER BY total_sold DESC
-                LIMIT 10
-            ");
-            $stmt->bind_param("i", $period);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $top_products = [];
-            while ($row = $result->fetch_assoc()) {
-                $top_products[] = $row;
-            }
-            
-            // Category-wise sales
-            $stmt = $this->conn->prepare("
-                SELECT 
-                    p.category,
-                    SUM(oi.quantity) as total_sold,
-                    SUM(oi.total_price) as total_revenue
-                FROM order_items oi
-                JOIN products p ON oi.product_id = p.id
-                JOIN orders o ON oi.order_id = o.id
-                WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
-                AND o.payment_status = 'completed'
-                GROUP BY p.category
-                ORDER BY total_revenue DESC
-            ");
-            $stmt->bind_param("i", $period);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $category_sales = [];
-            while ($row = $result->fetch_assoc()) {
-                $category_sales[] = $row;
-            }
-            
-            return $this->success([
-                'sales_data' => $sales_data,
-                'top_products' => $top_products,
-                'category_sales' => $category_sales
-            ]);
-        } catch (Exception $e) {
-            return $this->error('Failed to get sales analytics: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Get low stock products (FR15)
-    public function getLowStockProducts() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        $threshold = $_GET['threshold'] ?? 10;
-        
-        try {
-            $stmt = $this->conn->prepare("
-                SELECT id, name, stock_quantity, category, price
-                FROM products 
-                WHERE stock_quantity <= ? AND is_active = 1
-                ORDER BY stock_quantity ASC
-            ");
-            $stmt->bind_param("i", $threshold);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $products = [];
-            while ($row = $result->fetch_assoc()) {
-                $products[] = $row;
-            }
-            
-            return $this->success(['products' => $products]);
-        } catch (Exception $e) {
-            return $this->error('Failed to get low stock products: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Get expired products (FR16)
-    public function getExpiredProducts() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        try {
-            $stmt = $this->conn->prepare("
-                SELECT id, name, expiry_date, stock_quantity, category
-                FROM products 
-                WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL
-                ORDER BY expiry_date ASC
-            ");
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $products = [];
-            while ($row = $result->fetch_assoc()) {
-                $products[] = $row;
-            }
-            
-            return $this->success(['products' => $products]);
-        } catch (Exception $e) {
-            return $this->error('Failed to get expired products: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Update product stock (FR15)
-    public function updateProductStock() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!$data || empty($data['product_id']) || !isset($data['stock_quantity'])) {
-            return $this->error('Product ID and stock quantity are required', 400);
-        }
-        
-        try {
-            $stmt = $this->conn->prepare("
-                UPDATE products 
-                SET stock_quantity = ?, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ");
-            $stmt->bind_param("ii", $data['stock_quantity'], $data['product_id']);
-            
-            if ($stmt->execute()) {
-                // Log stock update event
-                $this->logEvent('stock_update', [
-                    'product_id' => $data['product_id'],
-                    'new_stock' => $data['stock_quantity'],
-                    'updated_by' => $_SESSION['user_id']
-                ]);
-                
-                return $this->success(['message' => 'Stock updated successfully']);
-            } else {
-                return $this->error('Failed to update stock', 500);
-            }
-        } catch (Exception $e) {
-            return $this->error('Failed to update stock: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Remove expired products (FR16)
-    public function removeExpiredProducts() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        try {
-            // Get expired products before deletion
-            $stmt = $this->conn->prepare("
-                SELECT id, name, expiry_date, stock_quantity
-                FROM products 
-                WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL
-            ");
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $expired_products = [];
-            while ($row = $result->fetch_assoc()) {
-                $expired_products[] = $row;
-            }
-            
-            // Delete expired products
-            $stmt = $this->conn->prepare("
-                DELETE FROM products 
-                WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL
-            ");
-            $stmt->execute();
-            
-            $deleted_count = $stmt->affected_rows;
-            
-            // Log deletion event
-            if ($deleted_count > 0) {
-                $this->logEvent('expired_products_removed', [
-                    'deleted_count' => $deleted_count,
-                    'products' => $expired_products,
-                    'removed_by' => $_SESSION['user_id']
-                ]);
-            }
-            
-            return $this->success([
-                'message' => "Removed $deleted_count expired products",
-                'deleted_count' => $deleted_count,
-                'products' => $expired_products
-            ]);
-        } catch (Exception $e) {
-            return $this->error('Failed to remove expired products: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Get weekly reports (FR12)
-    public function getWeeklyReports() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        try {
-            $stmt = $this->conn->prepare("
-                SELECT 
-                    wr.*,
-                    u.first_name,
-                    u.last_name,
-                    u.username
-                FROM weekly_reports wr
-                JOIN users u ON wr.receptionist_id = u.id
-                ORDER BY wr.submitted_at DESC
-            ");
-            $stmt->execute();
-            $result = $stmt->get_result();
-            
-            $reports = [];
-            while ($row = $result->fetch_assoc()) {
-                $reports[] = $row;
-            }
-            
-            return $this->success(['reports' => $reports]);
-        } catch (Exception $e) {
-            return $this->error('Failed to get weekly reports: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Review weekly report (FR12)
-    public function reviewWeeklyReport() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        $data = json_decode(file_get_contents('php://input'), true);
-        
-        if (!$data || empty($data['report_id']) || empty($data['review_status'])) {
-            return $this->error('Report ID and review status are required', 400);
-        }
-        
-        try {
-            $stmt = $this->conn->prepare("
-                UPDATE weekly_reports 
-                SET review_status = ?, reviewed_by = ?
-                WHERE id = ?
-            ");
-            $stmt->bind_param("sii", $data['review_status'], $_SESSION['user_id'], $data['report_id']);
-            
-            if ($stmt->execute()) {
-                return $this->success(['message' => 'Report reviewed successfully']);
-            } else {
-                return $this->error('Failed to review report', 500);
-            }
-        } catch (Exception $e) {
-            return $this->error('Failed to review report: ' . $e->getMessage(), 500);
-        }
-    }
-    
-    // Get system settings
-    public function getSystemSettings() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            return $this->error('Method not allowed', 405);
-        }
-        
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
-        }
-        
-        // For now, return default settings
-        // In a real system, these would be stored in a settings table
-        return $this->success([
-            'settings' => [
-                'return_policy_days' => 5,
-                'low_stock_threshold' => 10,
-                'tax_rate' => 0.10,
-                'free_shipping_threshold' => 100,
-                'max_return_period' => 5
             ]
         ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get dashboard stats: ' . $e->getMessage()]);
     }
+}
+
+function handleSalesAnalytics($pdo, $params) {
+    $period = isset($params['period']) ? (int)$params['period'] : 7;
     
-    // Update system settings
-    public function updateSystemSettings() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-            return $this->error('Method not allowed', 405);
+    try {
+        // Sales data for the period
+        $stmt = $pdo->prepare("
+            SELECT 
+                DATE(created_at) as date,
+                COUNT(*) as orders,
+                SUM(final_amount) as sales,
+                AVG(final_amount) as avg_order_value
+            FROM orders 
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+            AND payment_status = 'completed'
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
+        ");
+        $stmt->execute([$period]);
+        $sales_data = $stmt->fetchAll();
+        
+        // Track if we're using sample data
+        $using_sample_data = false;
+        
+        // If no sales data, create sample data for demonstration
+        if (empty($sales_data)) {
+            $using_sample_data = true;
+            $sales_data = [];
+            for ($i = $period - 1; $i >= 0; $i--) {
+                $date = date('Y-m-d', strtotime("-$i days"));
+                $sales_data[] = [
+                    'date' => $date,
+                    'orders' => rand(1, 15),
+                    'sales' => rand(100, 2000),
+                    'avg_order_value' => rand(50, 300)
+                ];
+            }
         }
         
-        if (!$this->checkAdminAuth()) {
-            return $this->error('Access denied', 403);
+        // Top selling products
+        $stmt = $pdo->prepare("
+            SELECT 
+                p.name,
+                p.id,
+                SUM(oi.quantity) as total_sold,
+                SUM(oi.quantity * oi.unit_price) as total_revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+            AND o.payment_status = 'completed'
+            GROUP BY p.id, p.name
+            ORDER BY total_sold DESC
+            LIMIT 10
+        ");
+        $stmt->execute([$period]);
+        $top_products = $stmt->fetchAll();
+        
+        // If no top products data, create sample data
+        if (empty($top_products)) {
+            $using_sample_data = true;
+            $stmt = $pdo->prepare("SELECT id, name, price FROM products WHERE is_active = 1 LIMIT 5");
+            $stmt->execute();
+            $products = $stmt->fetchAll();
+            
+            $top_products = [];
+            foreach ($products as $product) {
+                $total_sold = rand(5, 50);
+                $top_products[] = [
+                    'name' => $product['name'],
+                    'id' => $product['id'],
+                    'total_sold' => $total_sold,
+                    'total_revenue' => $total_sold * $product['price']
+                ];
+            }
         }
         
-        $data = json_decode(file_get_contents('php://input'), true);
+        // Category-wise sales
+        $stmt = $pdo->prepare("
+            SELECT 
+                p.category,
+                SUM(oi.quantity) as total_sold,
+                SUM(oi.quantity * oi.unit_price) as total_revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.id
+            JOIN orders o ON oi.order_id = o.id
+            WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+            AND o.payment_status = 'completed'
+            GROUP BY p.category
+            ORDER BY total_revenue DESC
+        ");
+        $stmt->execute([$period]);
+        $category_sales = $stmt->fetchAll();
         
-        if (!$data) {
-            return $this->error('Invalid JSON data', 400);
+        // If no category sales data, create sample data
+        if (empty($category_sales)) {
+            $using_sample_data = true;
+            $stmt = $pdo->prepare("SELECT DISTINCT category FROM products WHERE is_active = 1");
+            $stmt->execute();
+            $categories = $stmt->fetchAll();
+            
+            $category_sales = [];
+            foreach ($categories as $category) {
+                $total_sold = rand(10, 100);
+                $avg_price = rand(50, 200);
+                $category_sales[] = [
+                    'category' => $category['category'],
+                    'total_sold' => $total_sold,
+                    'total_revenue' => $total_sold * $avg_price
+                ];
+            }
         }
         
-        // In a real system, update settings in database
-        // For now, just return success
-        return $this->success(['message' => 'Settings updated successfully']);
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'sales_data' => $sales_data,
+                'top_products' => $top_products,
+                'category_sales' => $category_sales,
+                'period' => $period,
+                'data_type' => $using_sample_data ? 'sample' : 'real'
+            ]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get sales analytics: ' . $e->getMessage()]);
     }
-    
-    // Helper method to log events
-    private function logEvent($event_type, $event_data) {
-        $stmt = $this->conn->prepare("INSERT INTO realtime_events (event_type, event_data) VALUES (?, ?)");
-        $json_data = json_encode($event_data);
-        $stmt->bind_param("ss", $event_type, $json_data);
+}
+
+function handleLowStockProducts($pdo) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, name, category, stock_quantity, price
+            FROM products
+            WHERE stock_quantity < 10 AND is_active = 1
+            ORDER BY stock_quantity ASC
+        ");
         $stmt->execute();
-    }
-    
-    private function success($data) {
-        http_response_code(200);
-        echo json_encode(['success' => true, 'data' => $data]);
-    }
-    
-    private function error($message, $code = 400) {
-        http_response_code($code);
-        echo json_encode(['success' => false, 'error' => $message]);
+        $products = $stmt->fetchAll();
+        
+        echo json_encode([
+            'success' => true,
+            'data' => ['products' => $products]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get low stock products: ' . $e->getMessage()]);
     }
 }
 
-// Initialize API
-$admin = new AdminAPI($conn);
-
-// Route requests
-$action = $_GET['action'] ?? '';
-
-switch ($action) {
-    case 'dashboard_stats':
-        $admin->getDashboardStats();
-        break;
-    case 'sales_analytics':
-        $admin->getSalesAnalytics();
-        break;
-    case 'low_stock':
-        $admin->getLowStockProducts();
-        break;
-    case 'expired_products':
-        $admin->getExpiredProducts();
-        break;
-    case 'update_stock':
-        $admin->updateProductStock();
-        break;
-    case 'remove_expired':
-        $admin->removeExpiredProducts();
-        break;
-    case 'weekly_reports':
-        $admin->getWeeklyReports();
-        break;
-    case 'review_report':
-        $admin->reviewWeeklyReport();
-        break;
-    case 'settings':
-        $admin->getSystemSettings();
-        break;
-    case 'update_settings':
-        $admin->updateSystemSettings();
-        break;
-    default:
-        http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'Action not found']);
-        break;
+function handleExpiredProducts($pdo) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT id, name, category, expiry_date, stock_quantity, price
+            FROM products
+            WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL AND is_active = 1
+            ORDER BY expiry_date ASC
+        ");
+        $stmt->execute();
+        $products = $stmt->fetchAll();
+        
+        echo json_encode([
+            'success' => true,
+            'data' => ['products' => $products]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get expired products: ' . $e->getMessage()]);
+    }
 }
-?> 
+
+function handleUpdateStock($pdo, $data) {
+    if (!isset($data['product_id']) || !isset($data['new_quantity'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Product ID and new quantity are required']);
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("UPDATE products SET stock_quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+        $stmt->execute([$data['new_quantity'], $data['product_id']]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Stock updated successfully'
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to update stock: ' . $e->getMessage()]);
+    }
+}
+
+function handleRemoveExpired($pdo) {
+    try {
+        $stmt = $pdo->prepare("UPDATE products SET is_active = 0 WHERE expiry_date < CURDATE() AND expiry_date IS NOT NULL");
+        $stmt->execute();
+        $deleted_count = $stmt->rowCount();
+        
+        echo json_encode([
+            'success' => true,
+            'data' => ['deleted_count' => $deleted_count],
+            'message' => "Removed $deleted_count expired products"
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to remove expired products: ' . $e->getMessage()]);
+    }
+}
+
+function handleWeeklyReports($pdo) {
+    try {
+        $stmt = $pdo->prepare("
+            SELECT wr.*, u.first_name, u.last_name
+            FROM weekly_reports wr
+            JOIN users u ON wr.receptionist_id = u.id
+            ORDER BY wr.submitted_at DESC
+        ");
+        $stmt->execute();
+        $reports = $stmt->fetchAll();
+        
+        echo json_encode([
+            'success' => true,
+            'data' => ['reports' => $reports]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get weekly reports: ' . $e->getMessage()]);
+    }
+}
+
+function handleReviewReport($pdo, $data) {
+    if (!isset($data['report_id']) || !isset($data['status'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Report ID and status are required']);
+        return;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("UPDATE weekly_reports SET review_status = ?, reviewed_by = ? WHERE id = ?");
+        $stmt->execute([$data['status'], $_SESSION['user_id'], $data['report_id']]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Report reviewed successfully'
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to review report: ' . $e->getMessage()]);
+    }
+}
+
+function handleGetSettings($pdo) {
+    try {
+        // For now, return default settings
+        $settings = [
+            'return_policy_days' => 5,
+            'low_stock_threshold' => 10,
+            'tax_rate' => 0.10,
+            'free_shipping_threshold' => 500
+        ];
+        
+        echo json_encode([
+            'success' => true,
+            'data' => ['settings' => $settings]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get settings: ' . $e->getMessage()]);
+    }
+}
+
+function handleUpdateSettings($pdo, $data) {
+    try {
+        // For now, just return success (settings would be stored in a settings table)
+        echo json_encode([
+            'success' => true,
+            'message' => 'Settings updated successfully'
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to update settings: ' . $e->getMessage()]);
+    }
+}
+
+function handleGetUsers($pdo) {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM users");
+        $stmt->execute();
+        $users = $stmt->fetchAll();
+
+        echo json_encode([
+            'success' => true,
+            'data' => ['users' => $users]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get users: ' . $e->getMessage()]);
+    }
+}
+
+function handleGetRoles($pdo) {
+    try {
+        $stmt = $pdo->prepare("SELECT DISTINCT role FROM users");
+        $stmt->execute();
+        $roles = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        echo json_encode([
+            'success' => true,
+            'data' => ['roles' => $roles]
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Failed to get roles: ' . $e->getMessage()]);
+    }
+}
+
+?>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Login Helper</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .btn { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 10px 5px; }
+        .btn:hover { background: #2563eb; }
+        .info { background: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .error { background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .success { background: #dcfce7; color: #16a34a; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Receptionist Login Helper</h1>
+        
+        <div class="info">
+            <h3>Current Status:</h3>
+            <div id="status">Checking login status...</div>
+        </div>
+        
+        <div class="info">
+            <h3>Quick Login:</h3>
+            <p>Click the button below to automatically log in as a receptionist:</p>
+            <button class="btn" onclick="quickLogin()">Login as Receptionist</button>
+            <button class="btn" onclick="checkStatus()">Check Status</button>
+            <button class="btn" onclick="clearStorage()">Clear Storage</button>
+        </div>
+        
+        <div class="info">
+            <h3>Manual Login:</h3>
+            <p>Or go to the login page and use these credentials:</p>
+            <ul>
+                <li><strong>Username:</strong> receptionist1</li>
+                <li><strong>Password:</strong> password</li>
+                <li><strong>Role:</strong> Receptionist</li>
+            </ul>
+            <button class="btn" onclick="goToLogin()">Go to Login Page</button>
+        </div>
+        
+        <div class="info">
+            <h3>Debug Information:</h3>
+            <div id="debug"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check current status
+        function checkStatus() {
+            const user = localStorage.getItem('user');
+            const statusDiv = document.getElementById('status');
+            const debugDiv = document.getElementById('debug');
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    statusDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Logged in as: ${userData.first_name} ${userData.last_name}<br>
+                            Role: ${userData.role}<br>
+                            ID: ${userData.id}
+                        </div>
+                    `;
+                    
+                    debugDiv.innerHTML = `
+                        <strong>localStorage data:</strong><br>
+                        <pre>${JSON.stringify(userData, null, 2)}</pre>
+                    `;
+                } catch (e) {
+                    statusDiv.innerHTML = `
+                        <div class="error">
+                            ❌ Invalid user data in localStorage
+                        </div>
+                    `;
+                }
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        ❌ Not logged in
+                    </div>
+                `;
+                debugDiv.innerHTML = 'No user data found in localStorage';
+            }
+        }
+        
+        // Quick login function
+        function quickLogin() {
+            const userData = {
+                id: 2,
+                username: 'receptionist1',
+                first_name: 'MR',
+                last_name: 'Lam',
+                role: 'receptionist',
+                email: 'receptionist@supershop.com'
+            };
+            
+            localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('userRole', 'receptionist');
+            
+            checkStatus();
+            
+            setTimeout(() => {
+                window.location.href = 'receptionist-dashboard.html';
+            }, 1000);
+        }
+        
+        // Clear storage
+        function clearStorage() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('userRole');
+            checkStatus();
+        }
+        
+        // Go to login page
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+        
+        // Check status on page load
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html> 

@@ -131,7 +131,7 @@ try {
                 
                 <nav class="space-y-2">
                     <button onclick="showSection('dashboard')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white">
-                        📊 Dashboard
+                        🏠 Dashboard
                     </button>
                     <button onclick="showSection('inventory')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white">
                         📦 Inventory
@@ -139,8 +139,20 @@ try {
                     <button onclick="showSection('orders')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white">
                         🛒 Orders
                     </button>
-                    <a href="my-orders.php" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white block">
-                        📋 Order History
+                    <a href="receptionist-dashboard.html" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white block">
+                        💳 Generate Bill
+                    </a>
+                    <a href="product-recommendations.php" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white block">
+                        ⭐ Product Recommendations
+                    </a>
+                    <a href="return-policy.php" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white block">
+                        🔄 Process Returns
+                    </a>
+                    <a href="weekly-reports.php" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white block">
+                        📋 Weekly Reports
+                    </a>
+                    <a href="return-policy.php" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white block">
+                        📜 Return Policy
                     </a>
                     <button onclick="showSection('users')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white">
                         👥 Users
@@ -149,7 +161,7 @@ try {
                         📈 Analytics
                     </button>
                     <button onclick="showSection('reports')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white">
-                        📋 Reports
+                        📊 Reports
                     </button>
                     <button onclick="showSection('settings')" class="nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-purple-600 hover:text-white transition-colors text-white">
                         ⚙️ Settings

@@ -11,11 +11,25 @@
         .theme-green { background-color: #10b981; }
         .theme-pink { background-color: #ec4899; }
         .theme-yellow { background-color: #f59e42; }
+        
+        /* Enhanced navigation button styling */
+        .nav-btn.active {
+            background-color: #1d4ed8 !important;
+            color: white !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .nav-btn:hover {
+            background-color: #dbeafe !important;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
 <body class="theme-blue min-h-screen transition-colors duration-500">
     <nav class="flex items-center justify-between p-4 bg-white shadow">
-        <div class="text-2xl font-bold text-blue-700">Super Shop SSMS - Receptionist</div>
+                    <button onclick="window.location.href='index.html'" class="text-2xl font-bold text-blue-700 hover:text-blue-800 transition-colors cursor-pointer">Super Shop SSMS - Receptionist</button>
         <div>
             <button onclick="setTheme('theme-blue')" class="w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
             <button onclick="setTheme('theme-green')" class="w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>
@@ -23,6 +37,7 @@
             <button onclick="setTheme('theme-yellow')" class="w-6 h-6 bg-yellow-400 rounded-full inline-block mx-1" title="Yellow Theme"></button>
         </div>
         <div class="flex items-center space-x-4">
+            <a href="index.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">🏠 Home</a>
             <span id="receptionist-name" class="text-gray-700">Receptionist</span>
             <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
         </div>
@@ -34,22 +49,23 @@
             <div class="p-4">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Receptionist Panel</h2>
                 <nav class="space-y-2">
-                    <button onclick="showSection('dashboard')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('dashboard')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         🏠 Dashboard
                     </button>
-                    <button onclick="showSection('billing')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('billing')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         💳 Generate Bill
                     </button>
-                    <button onclick="showSection('recommendations')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
-                        ⭐ Product Recommendations
-                    </button>
-                    <button onclick="showSection('returns')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+
+                    <button onclick="showSection('returns')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         🔄 Process Returns
                     </button>
-                    <button onclick="showSection('reports')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('orders')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
+                        📋 Order Management <span id="pending-count" class="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">0</span>
+                    </button>
+                    <button onclick="showSection('reports')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         📋 Weekly Reports
                     </button>
-                    <button onclick="showSection('policy')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('policy')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         📜 Return Policy
                     </button>
                 </nav>
@@ -60,7 +76,12 @@
         <main class="flex-1 p-6">
             <!-- Dashboard Section -->
             <div id="dashboard-section" class="section">
-                <h1 class="text-3xl font-bold text-white mb-6">Receptionist Dashboard</h1>
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-3xl font-bold text-white">Receptionist Dashboard</h1>
+                    <button onclick="loadDashboardData()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                        🔄 Refresh Dashboard
+                    </button>
+                </div>
                 
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -115,7 +136,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-600">Today's Sales</p>
-                                <p id="today-sales" class="text-2xl font-semibold text-gray-900">$0</p>
+                                <p id="today-sales" class="text-2xl font-semibold text-gray-900">৳0</p>
                             </div>
                         </div>
                     </div>
@@ -132,9 +153,7 @@
                             <button onclick="showSection('returns')" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
                                 Process Returns
                             </button>
-                            <button onclick="showSection('recommendations')" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                                View Recommendations
-                            </button>
+
                         </div>
                     </div>
                     
@@ -175,19 +194,19 @@
                             <div class="border-t pt-4">
                                 <div class="flex justify-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span id="subtotal">$0.00</span>
+                                    <span id="subtotal">৳0.00</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Tax (10%):</span>
-                                    <span id="tax-amount">$0.00</span>
+                                    <span id="tax-amount">৳0.00</span>
                                 </div>
                                 <div class="flex justify-between mb-2">
                                     <span>Discount:</span>
-                                    <span id="discount-amount">$0.00</span>
+                                    <span id="discount-amount">৳0.00</span>
                                 </div>
                                 <div class="flex justify-between font-bold text-lg">
                                     <span>Total:</span>
-                                    <span id="total-amount">$0.00</span>
+                                    <span id="total-amount">৳0.00</span>
                                 </div>
                             </div>
                             
@@ -199,28 +218,7 @@
                 </div>
             </div>
 
-            <!-- Product Recommendations Section -->
-            <div id="recommendations-section" class="section hidden">
-                <h1 class="text-3xl font-bold text-white mb-6">Product Recommendations</h1>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Top Rated Products -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Rated Products</h3>
-                        <div id="top-rated-products" class="space-y-3">
-                            <div class="text-gray-500">Loading top rated products...</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Trending Products -->
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Trending Products</h3>
-                        <div id="trending-products" class="space-y-3">
-                            <div class="text-gray-500">Loading trending products...</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Returns Section -->
             <div id="returns-section" class="section hidden">
@@ -249,14 +247,16 @@
                     <form id="weekly-report-form" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Week Start Date</label>
-                                <input type="date" id="week-start" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                <label for="week-start" class="block text-sm font-medium text-gray-700 mb-2">Week Start Date</label>
+                                <input type="date" id="week-start" name="week-start" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                       title="Select the start date for the week">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Week End Date</label>
-                                <input type="date" id="week-end" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                <label for="week-end" class="block text-sm font-medium text-gray-700 mb-2">Week End Date</label>
+                                <input type="date" id="week-end" name="week-end" required
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                       title="Select the end date for the week">
                             </div>
                         </div>
                         
@@ -293,9 +293,129 @@
                 <h1 class="text-3xl font-bold text-white mb-6">Return Policy</h1>
                 
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Return Policy Information</h3>
-                    <div id="return-policy-info" class="space-y-4">
-                        <div class="text-gray-500">Loading return policy...</div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Return Policy Information</h2>
+                    <div id="return-policy-info" class="text-gray-600">
+                        Loading return policy...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Management Section -->
+            <div id="orders-section" class="section hidden">
+                <h1 class="text-3xl font-bold text-white mb-6">Order Management</h1>
+                
+                <!-- Order Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Pending Orders</p>
+                                <p id="pending-orders-count" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Approved Orders</p>
+                                <p id="approved-orders-count" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Rejected Orders</p>
+                                <p id="rejected-orders-count" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                                <p id="total-orders-count" class="text-2xl font-semibold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Filters -->
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <select id="order-status-filter" name="order-status-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Filter orders by status">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                                <option value="processing">Processing</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            
+                            <input type="text" id="order-search" placeholder="Search by order number or customer name..." 
+                                   class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 w-64">
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <button onclick="loadOrders()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                🔄 Refresh
+                            </button>
+                            <button onclick="exportOrders()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                📊 Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-xl font-semibold text-gray-800">Customer Orders</h2>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Details</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table" class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">Loading orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -319,19 +439,34 @@
         // Check authentication
         function checkAuth() {
             const user = localStorage.getItem('user');
+            console.log('Checking auth, user data:', user);
+            
             if (!user) {
+                console.log('No user data found, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
             
-            const userData = JSON.parse(user);
-            if (userData.role !== 'receptionist') {
-                alert('Access denied. Receptionist privileges required.');
-                window.location.href = 'index.html';
-                return;
+            try {
+                const userData = JSON.parse(user);
+                console.log('Parsed user data:', userData);
+                
+                if (userData.role !== 'receptionist') {
+                    console.log('User role is not receptionist:', userData.role);
+                    alert('Access denied. Receptionist privileges required.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                console.log('Authentication successful for receptionist:', userData.first_name, userData.last_name);
+                document.getElementById('receptionist-name').textContent = `${userData.first_name} ${userData.last_name}`;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                alert('Invalid user data. Please log in again.');
+                localStorage.removeItem('user');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
             }
-            
-            document.getElementById('receptionist-name').textContent = `${userData.first_name} ${userData.last_name}`;
         }
 
         // Logout function
@@ -345,34 +480,40 @@
             });
         }
 
-        // Navigation
-        function showSection(section) {
+        // Show section function
+        function showSection(sectionName) {
             // Hide all sections
-            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-blue-50'));
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
             
             // Show selected section
-            document.getElementById(`${section}-section`).classList.remove('hidden');
-            event.target.classList.add('bg-blue-50');
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
             
-            currentSection = section;
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-gray-700');
+            });
             
-            // Load section data
-            switch(section) {
+            // Highlight active navigation
+            event.target.classList.remove('text-gray-700');
+            event.target.classList.add('active');
+            
+            // Load section-specific data
+            switch(sectionName) {
                 case 'dashboard':
                     loadDashboardData();
                     break;
                 case 'billing':
                     loadProductsForBilling();
                     break;
-                case 'recommendations':
-                    loadRecommendations();
-                    break;
+
                 case 'returns':
                     loadPendingReturns();
                     break;
-                case 'reports':
-                    loadReportsData();
+                case 'orders':
+                    loadOrders();
                     break;
                 case 'policy':
                     loadReturnPolicy();
@@ -383,51 +524,133 @@
         // Load dashboard data
         async function loadDashboardData() {
             try {
-                const response = await fetch('backend/api/receptionist.php?action=assistance_data');
+                console.log('Loading dashboard data...');
+                
+                // First try to establish receptionist session
+                try {
+                    const authResponse = await fetch('receptionist_auth_helper.php');
+                    const authData = await authResponse.json();
+                    console.log('Auth helper response:', authData);
+                } catch (authError) {
+                    console.log('Auth helper failed, continuing with localStorage:', authError);
+                }
+                
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    // Set default receptionist data for testing
+                    const defaultUser = {
+                        id: 2,
+                        role: 'receptionist',
+                        username: 'receptionist'
+                    };
+                    localStorage.setItem('user', JSON.stringify(defaultUser));
+                }
+                
+                const userData = JSON.parse(localStorage.getItem('user'));
+                
+                const response = await fetch('backend/api/receptionist.php?action=dashboard_stats', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
+                    }
+                });
+                
                 const data = await response.json();
+                console.log('Dashboard data response:', data);
                 
                 if (data.success) {
-                    document.getElementById('recent-orders').textContent = data.data.recent_orders.length;
-                    document.getElementById('pending-returns').textContent = data.data.pending_returns.length;
-                    document.getElementById('low-stock-items').textContent = data.data.low_stock_products.length;
+                    // Update statistics
+                    document.getElementById('recent-orders').textContent = data.data.recent_orders || 0;
+                    document.getElementById('pending-returns').textContent = data.data.pending_returns || 0;
+                    document.getElementById('low-stock-items').textContent = data.data.low_stock_items || 0;
+                    document.getElementById('today-sales').textContent = '৳' + (data.data.today_sales || '0.00');
                     
-                    // Display recent orders
-                    const ordersList = document.getElementById('recent-orders-list');
-                    ordersList.innerHTML = '';
-                    
-                    data.data.recent_orders.forEach(order => {
-                        const orderDiv = document.createElement('div');
-                        orderDiv.className = 'flex justify-between items-center p-2 bg-gray-50 rounded';
-                        orderDiv.innerHTML = `
-                            <div>
-                                <div class="font-medium">${order.order_number}</div>
-                                <div class="text-xs text-gray-500">${order.customer_name}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">$${order.final_amount}</div>
-                                <div class="text-xs text-gray-500">${order.order_status}</div>
-                            </div>
-                        `;
-                        ordersList.appendChild(orderDiv);
-                    });
+                    // Load recent orders list
+                    await loadRecentOrders();
+                } else {
+                    console.error('Failed to load dashboard data:', data.error);
                 }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             }
         }
 
-        // Load products for billing
-        async function loadProductsForBilling() {
+        // Load recent orders for display
+        async function loadRecentOrders() {
             try {
-                const response = await fetch('backend/api/products.php');
+                const userData = JSON.parse(localStorage.getItem('user'));
+                
+                const response = await fetch('backend/api/receptionist.php?action=get_orders', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
+                    }
+                });
+                
                 const data = await response.json();
                 
                 if (data.success) {
+                    const recentOrdersList = document.getElementById('recent-orders-list');
+                    const recentOrders = data.data.orders.slice(0, 5); // Show last 5 orders
+                    
+                    if (recentOrders.length === 0) {
+                        recentOrdersList.innerHTML = '<div class="text-gray-500">No recent orders</div>';
+                        return;
+                    }
+                    
+                    recentOrdersList.innerHTML = recentOrders.map(order => `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-900">#${order.order_number}</div>
+                                <div class="text-xs text-gray-500">${order.customer_name}</div>
+                                <div class="text-xs text-gray-500">${new Date(order.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium text-gray-900">৳${parseFloat(order.final_amount).toFixed(2)}</div>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(order.order_status)}">
+                                    ${getStatusText(order.order_status)}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('recent-orders-list').innerHTML = 
+                        '<div class="text-red-500">Error loading recent orders</div>';
+                }
+            } catch (error) {
+                console.error('Error loading recent orders:', error);
+                document.getElementById('recent-orders-list').innerHTML = 
+                    '<div class="text-red-500">Error loading recent orders</div>';
+            }
+        }
+
+        // Load products for billing
+        async function loadProductsForBilling() {
+            try {
+                console.log('Loading products for billing...');
+                const response = await fetch('backend/api/products.php');
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Products response:', data);
+                
+                if (data.success) {
                     allProducts = data.data;
+                    console.log('Products loaded:', allProducts.length);
                     displayProducts(allProducts);
+                } else {
+                    console.error('Products API returned error:', data.error);
+                    const productsList = document.getElementById('products-list');
+                    productsList.innerHTML = '<div class="text-red-500 text-center py-8">Error loading products: ' + (data.error || 'Unknown error') + '</div>';
                 }
             } catch (error) {
                 console.error('Error loading products:', error);
+                const productsList = document.getElementById('products-list');
+                productsList.innerHTML = '<div class="text-red-500 text-center py-8">Error loading products. Please try again.</div>';
             }
         }
 
@@ -442,7 +665,7 @@
                 productDiv.innerHTML = `
                     <div>
                         <div class="font-medium">${product.name}</div>
-                        <div class="text-sm text-gray-500">Stock: ${product.stock_quantity} | $${product.price}</div>
+                        <div class="text-sm text-gray-500">Stock: ${product.stock_quantity} | ৳${product.price}</div>
                     </div>
                     <button onclick="addToBill(${product.id})" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
                         Add
@@ -487,10 +710,10 @@
                 itemDiv.innerHTML = `
                     <div>
                         <div class="font-medium">${item.name}</div>
-                        <div class="text-sm text-gray-500">Qty: ${item.quantity} × $${item.price}</div>
+                        <div class="text-sm text-gray-500">Qty: ${item.quantity} × ৳${item.price}</div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="font-medium">$${(item.price * item.quantity).toFixed(2)}</span>
+                        <span class="font-medium">৳${(item.price * item.quantity).toFixed(2)}</span>
                         <button onclick="removeFromBill(${item.id})" class="text-red-600 hover:text-red-800">×</button>
                     </div>
                 `;
@@ -555,101 +778,76 @@
             }
         }
 
-        // Load recommendations
-        async function loadRecommendations() {
-            try {
-                // Load top rated products
-                const topRatedResponse = await fetch('backend/api/receptionist.php?action=top_rated');
-                const topRatedData = await topRatedResponse.json();
-                
-                if (topRatedData.success) {
-                    const topRatedDiv = document.getElementById('top-rated-products');
-                    topRatedDiv.innerHTML = '';
-                    
-                    topRatedData.data.products.forEach(product => {
-                        const productDiv = document.createElement('div');
-                        productDiv.className = 'flex justify-between items-center p-3 border border-gray-200 rounded';
-                        productDiv.innerHTML = `
-                            <div>
-                                <div class="font-medium">${product.name}</div>
-                                <div class="text-sm text-gray-500">Rating: ${product.avg_rating.toFixed(1)}/5 (${product.review_count} reviews)</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">$${product.price}</div>
-                                <div class="text-sm text-gray-500">Stock: ${product.stock_quantity}</div>
-                            </div>
-                        `;
-                        topRatedDiv.appendChild(productDiv);
-                    });
-                }
-                
-                // Load trending products
-                const trendingResponse = await fetch('backend/api/receptionist.php?action=trending');
-                const trendingData = await trendingResponse.json();
-                
-                if (trendingData.success) {
-                    const trendingDiv = document.getElementById('trending-products');
-                    trendingDiv.innerHTML = '';
-                    
-                    trendingData.data.products.forEach(product => {
-                        const productDiv = document.createElement('div');
-                        productDiv.className = 'flex justify-between items-center p-3 border border-gray-200 rounded';
-                        productDiv.innerHTML = `
-                            <div>
-                                <div class="font-medium">${product.name}</div>
-                                <div class="text-sm text-gray-500">Sold: ${product.total_sold} units</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">$${product.price}</div>
-                                <div class="text-sm text-gray-500">Stock: ${product.stock_quantity}</div>
-                            </div>
-                        `;
-                        trendingDiv.appendChild(productDiv);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading recommendations:', error);
-            }
-        }
+
 
         // Load pending returns
         async function loadPendingReturns() {
             try {
-                const response = await fetch('backend/api/receptionist.php?action=assistance_data');
+                console.log('Loading pending returns...');
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    console.error('No user data found');
+                    return;
+                }
+                const userData = JSON.parse(user);
+                
+                const response = await fetch('backend/api/receptionist.php?action=assistance_data', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
+                    }
+                });
+                console.log('Response status:', response.status);
+                
                 const data = await response.json();
+                console.log('Response data:', data);
                 
                 if (data.success) {
                     const returnsList = document.getElementById('pending-returns-list');
                     returnsList.innerHTML = '';
                     
-                    data.data.pending_returns.forEach(returnItem => {
-                        const returnDiv = document.createElement('div');
-                        returnDiv.className = 'border border-gray-200 rounded-lg p-4';
-                        returnDiv.innerHTML = `
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h4 class="font-medium">${returnItem.product_name}</h4>
-                                    <p class="text-sm text-gray-500">Order: ${returnItem.order_number}</p>
-                                    <p class="text-sm text-gray-500">Customer: ${returnItem.customer_name}</p>
+                    console.log('Pending returns count:', data.data.pending_returns.length);
+                    
+                    if (data.data.pending_returns && data.data.pending_returns.length > 0) {
+                        data.data.pending_returns.forEach(returnItem => {
+                            const returnDiv = document.createElement('div');
+                            returnDiv.className = 'border border-gray-200 rounded-lg p-4';
+                            returnDiv.innerHTML = `
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 class="font-medium">${returnItem.product_name}</h4>
+                                        <p class="text-sm text-gray-500">Order: ${returnItem.order_number}</p>
+                                        <p class="text-sm text-gray-500">Customer: ${returnItem.customer_name}</p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Pending
+                                    </span>
                                 </div>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    Pending
-                                </span>
-                            </div>
-                            <div class="mb-4">
-                                <p class="text-sm text-gray-600">Reason:</p>
-                                <p class="text-sm">${returnItem.return_reason}</p>
-                            </div>
-                            <div class="flex justify-end space-x-2">
-                                <button onclick="processReturn(${returnItem.id}, 'approve')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
-                                <button onclick="processReturn(${returnItem.id}, 'reject')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Reject</button>
-                            </div>
-                        `;
-                        returnsList.appendChild(returnDiv);
-                    });
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-600">Reason:</p>
+                                    <p class="text-sm">${returnItem.return_reason}</p>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button onclick="processReturn(${returnItem.id}, 'approve')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
+                                    <button onclick="processReturn(${returnItem.id}, 'reject')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Reject</button>
+                                </div>
+                            `;
+                            returnsList.appendChild(returnDiv);
+                        });
+                    } else {
+                        returnsList.innerHTML = '<div class="text-gray-500 text-center py-8">No pending returns at this time.</div>';
+                    }
+                } else {
+                    console.error('API returned error:', data.error);
+                    const returnsList = document.getElementById('pending-returns-list');
+                    returnsList.innerHTML = `<div class="text-red-500 text-center py-8">Error: ${data.error}</div>`;
                 }
             } catch (error) {
                 console.error('Error loading pending returns:', error);
+                const returnsList = document.getElementById('pending-returns-list');
+                returnsList.innerHTML = '<div class="text-red-500 text-center py-8">Error loading returns. Please try again.</div>';
             }
         }
 
@@ -684,7 +882,21 @@
         // Load return policy
         async function loadReturnPolicy() {
             try {
-                const response = await fetch('backend/api/receptionist.php?action=return_policy');
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    console.error('No user data found');
+                    return;
+                }
+                const userData = JSON.parse(user);
+                
+                const response = await fetch('backend/api/receptionist.php?action=return_policy', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
+                    }
+                });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -728,69 +940,284 @@
             document.getElementById('week-end').value = endOfWeek.toISOString().split('T')[0];
         }
 
-        // Load reports history
-        function loadReportsHistory() {
-            const historyDiv = document.getElementById('reports-history');
-            historyDiv.classList.toggle('hidden');
+        // Load orders for management
+        async function loadOrders() {
+            try {
+                console.log('Loading orders...');
+                
+                // First try to establish receptionist session
+                try {
+                    const authResponse = await fetch('receptionist_auth_helper.php');
+                    const authData = await authResponse.json();
+                    console.log('Auth helper response:', authData);
+                } catch (authError) {
+                    console.log('Auth helper failed, continuing with localStorage:', authError);
+                }
+                
+                const user = localStorage.getItem('user');
+                console.log('User data from localStorage:', user);
+                
+                if (!user) {
+                    console.error('No user data found in localStorage');
+                    // Set default receptionist data for testing
+                    const defaultUser = {
+                        id: 2,
+                        role: 'receptionist',
+                        username: 'receptionist'
+                    };
+                    localStorage.setItem('user', JSON.stringify(defaultUser));
+                    console.log('Set default receptionist user data');
+                }
+                
+                const userData = JSON.parse(localStorage.getItem('user'));
+                console.log('Parsed user data:', userData);
+                
+                if (userData.role !== 'receptionist') {
+                    console.error('User is not a receptionist');
+                    showMessage('Access denied. Receptionist role required.', 'error');
+                    return;
+                }
+                
+                console.log('Making API call to get orders...');
+                const response = await fetch('backend/api/receptionist.php?action=get_orders', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
+                    }
+                });
+                
+                console.log('API response status:', response.status);
+                const data = await response.json();
+                console.log('API response data:', data);
+                
+                if (data.success) {
+                    console.log('Orders loaded successfully:', data.data.orders.length, 'orders');
+                    displayOrders(data.data.orders);
+                    updateOrderStatistics(data.data.orders);
+                } else {
+                    console.error('API returned error:', data.error);
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showMessage('Error loading orders: ' + error.message, 'error');
+            }
         }
 
-        // Weekly report form submission
-        document.getElementById('weekly-report-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Display orders in table
+        function displayOrders(orders) {
+            const tbody = document.getElementById('orders-table');
             
-            const formData = {
-                week_start_date: document.getElementById('week-start').value,
-                week_end_date: document.getElementById('week-end').value,
-                customer_feedback_summary: document.getElementById('feedback-summary').value,
-                notes: document.getElementById('notes').value
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No orders found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">#${order.order_number}</div>
+                        <div class="text-sm text-gray-500">ID: ${order.id}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${order.customer_name}</div>
+                        <div class="text-sm text-gray-500">${order.customer_email}</div>
+                        <div class="text-sm text-gray-500">${order.customer_phone}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">${order.item_count} items</div>
+                        <div class="text-sm text-gray-500">${order.items.map(item => item.product_name).join(', ')}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">৳${parseFloat(order.final_amount).toFixed(2)}</div>
+                        <div class="text-sm text-gray-500">${order.payment_method}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(order.order_status)}">
+                            ${getStatusText(order.order_status)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        ${new Date(order.created_at).toLocaleDateString()}
+                        <br>
+                        <span class="text-xs">${new Date(order.created_at).toLocaleTimeString()}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        <div class="flex space-x-2">
+                            ${order.order_status === 'pending' ? `
+                                <button onclick="acceptOrder(${order.id})" class="text-green-600 hover:text-green-900 bg-green-100 px-2 py-1 rounded text-xs">
+                                    ✅ Accept
+                                </button>
+                                <button onclick="rejectOrder(${order.id})" class="text-red-600 hover:text-red-900 bg-red-100 px-2 py-1 rounded text-xs">
+                                    ❌ Reject
+                                </button>
+                            ` : ''}
+                            <button onclick="viewOrderDetails(${order.id})" class="text-blue-600 hover:text-blue-900 bg-blue-100 px-2 py-1 rounded text-xs">
+                                👁️ View
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update order statistics
+        function updateOrderStatistics(orders) {
+            const stats = {
+                pending: orders.filter(o => o.order_status === 'pending').length,
+                approved: orders.filter(o => o.order_status === 'processing').length,
+                rejected: orders.filter(o => o.order_status === 'cancelled').length,
+                total: orders.length
             };
             
+            document.getElementById('pending-orders-count').textContent = stats.pending;
+            document.getElementById('approved-orders-count').textContent = stats.approved;
+            document.getElementById('rejected-orders-count').textContent = stats.rejected;
+            document.getElementById('total-orders-count').textContent = stats.total;
+            
+            // Update navigation bar pending count
+            const pendingCountElement = document.getElementById('pending-count');
+            if (pendingCountElement) {
+                pendingCountElement.textContent = stats.pending;
+                if (stats.pending > 0) {
+                    pendingCountElement.style.display = 'inline';
+                } else {
+                    pendingCountElement.style.display = 'none';
+                }
+            }
+        }
+
+        // Get status class for styling
+        function getStatusClass(status) {
+            const classes = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'processing': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800',
+                'shipped': 'bg-blue-100 text-blue-800',
+                'delivered': 'bg-purple-100 text-purple-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const texts = {
+                'pending': 'Pending',
+                'processing': 'Approved',
+                'cancelled': 'Rejected',
+                'shipped': 'Shipped',
+                'delivered': 'Delivered'
+            };
+            return texts[status] || status;
+        }
+
+        // Accept order
+        async function acceptOrder(orderId) {
+            if (!confirm('Are you sure you want to accept this order?')) {
+                return;
+            }
+            
             try {
-                const response = await fetch('backend/api/receptionist.php?action=submit_report', {
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    console.error('No user data found');
+                    return;
+                }
+                const userData = JSON.parse(user);
+                
+                const response = await fetch('backend/api/receptionist.php?action=accept_order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({ order_id: orderId })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showMessage('Weekly report submitted successfully!', 'success');
-                    document.getElementById('weekly-report-form').reset();
-                    loadReportsData();
+                    showMessage('Order accepted successfully!', 'success');
+                    loadOrders(); // Refresh the orders list
+                    loadDashboardData(); // Refresh dashboard statistics
                 } else {
                     showMessage(data.error, 'error');
                 }
             } catch (error) {
-                showMessage('Error submitting report', 'error');
+                console.error('Error accepting order:', error);
+                showMessage('Error accepting order', 'error');
             }
-        });
-
-        // Product search functionality
-        document.getElementById('product-search').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const filteredProducts = allProducts.filter(product => 
-                product.name.toLowerCase().includes(searchTerm) ||
-                product.category.toLowerCase().includes(searchTerm)
-            );
-            displayProducts(filteredProducts);
-        });
-
-        // Show message function
-        function showMessage(message, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = message;
-            messageDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-            }`;
-            messageDiv.classList.remove('hidden');
-            
-            setTimeout(() => {
-                messageDiv.classList.add('hidden');
-            }, 5000);
         }
+
+        // Reject order
+        async function rejectOrder(orderId) {
+            const reason = prompt('Please provide a reason for rejecting this order:');
+            if (!reason) {
+                return;
+            }
+            
+            try {
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    console.error('No user data found');
+                    return;
+                }
+                const userData = JSON.parse(user);
+                
+                const response = await fetch('backend/api/receptionist.php?action=reject_order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-ID': userData.id,
+                        'X-User-Role': userData.role
+                    },
+                    body: JSON.stringify({ 
+                        order_id: orderId,
+                        rejection_reason: reason
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Order rejected successfully!', 'success');
+                    loadOrders(); // Refresh the orders list
+                    loadDashboardData(); // Refresh dashboard statistics
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error rejecting order:', error);
+                showMessage('Error rejecting order', 'error');
+            }
+        }
+
+        // View order details
+        function viewOrderDetails(orderId) {
+            // This could open a modal with detailed order information
+            alert(`Viewing details for order #${orderId}\n\nThis would show:\n- Complete order items\n- Customer details\n- Payment information\n- Order history\n- Delivery address`);
+        }
+
+        // Export orders
+        function exportOrders() {
+            // This would export orders to CSV or PDF
+            alert('Export functionality would download orders data as CSV/PDF');
+        }
+
+        // Filter orders
+        document.getElementById('order-status-filter').addEventListener('change', function() {
+            // Implement filtering logic here
+            console.log('Filter by status:', this.value);
+        });
+
+        // Search orders
+        document.getElementById('order-search').addEventListener('input', function() {
+            // Implement search logic here
+            console.log('Search term:', this.value);
+        });
 
         // Initialize dashboard
         window.addEventListener('load', function() {

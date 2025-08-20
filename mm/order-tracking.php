@@ -123,7 +123,7 @@ function getStatusIcon($status) {
 </head>
 <body class="theme-blue min-h-screen transition-colors duration-500">
     <nav class="flex items-center justify-between p-4 bg-white shadow">
-        <div class="text-2xl font-bold text-blue-700">Super Shop SSMS</div>
+        <button onclick="window.location.href='index.html'" class="text-2xl font-bold text-blue-700 hover:text-blue-800 transition-colors cursor-pointer">Super Shop</button>
         <div>
             <button onclick="setTheme('theme-blue')" class="w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
             <button onclick="setTheme('theme-green')" class="w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>

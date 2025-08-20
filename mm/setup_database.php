@@ -49,19 +49,23 @@ try {
     $stmt = $pdo->prepare("INSERT IGNORE INTO users (username, email, password_hash, first_name, last_name, role, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute(['receptionist', 'receptionist@supershop.com', $receptionist_password, 'Receptionist', 'User', 'receptionist', 1]);
     
-    // Sample products
+    // Sample products with image URLs
     $products = [
-        ['Laptop', 'High-performance laptop', 999.99, 50, 'Electronics', '2025-12-31'],
-        ['Smartphone', 'Latest smartphone model', 599.99, 100, 'Electronics', '2025-12-31'],
-        ['Headphones', 'Wireless noise-canceling headphones', 199.99, 75, 'Electronics', '2025-12-31'],
-        ['Coffee Maker', 'Automatic coffee machine', 89.99, 30, 'Home & Kitchen', '2025-12-31'],
-        ['Running Shoes', 'Comfortable athletic shoes', 129.99, 60, 'Sports', '2025-12-31'],
-        ['Backpack', 'Durable school backpack', 49.99, 80, 'Fashion', '2025-12-31'],
-        ['Bluetooth Speaker', 'Portable wireless speaker', 79.99, 45, 'Electronics', '2025-12-31'],
-        ['Desk Lamp', 'LED desk lamp with adjustable brightness', 39.99, 55, 'Home & Kitchen', '2025-12-31']
+        ['Laptop', 'High-performance laptop with latest specifications', 999.99, 50, 'Electronics', '2025-12-31', 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop'],
+        ['Smartphone', 'Latest smartphone model with advanced features', 599.99, 100, 'Electronics', '2025-12-31', 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop'],
+        ['Headphones', 'Wireless noise-canceling headphones', 199.99, 75, 'Electronics', '2025-12-31', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop'],
+        ['Coffee Maker', 'Automatic coffee machine for perfect brew', 89.99, 30, 'Home & Kitchen', '2025-12-31', 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=300&h=300&fit=crop'],
+        ['Running Shoes', 'Comfortable athletic shoes for daily use', 129.99, 60, 'Sports', '2025-12-31', 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop'],
+        ['Backpack', 'Durable school backpack with multiple compartments', 49.99, 80, 'Fashion', '2025-12-31', 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop'],
+        ['Bluetooth Speaker', 'Portable wireless speaker with great sound', 79.99, 45, 'Electronics', '2025-12-31', 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=300&fit=crop'],
+        ['Desk Lamp', 'LED desk lamp with adjustable brightness', 39.99, 55, 'Home & Kitchen', '2025-12-31', 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop'],
+        ['Yoga Mat', 'Premium yoga mat for home workouts', 34.99, 40, 'Sports', '2025-12-31', 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=300&h=300&fit=crop'],
+        ['Sunglasses', 'Stylish sunglasses with UV protection', 59.99, 70, 'Fashion', '2025-12-31', 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop'],
+        ['Smart Watch', 'Fitness tracking smartwatch', 299.99, 25, 'Electronics', '2025-12-31', 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop'],
+        ['Kitchen Mixer', 'Professional kitchen mixer for baking', 199.99, 15, 'Home & Kitchen', '2025-12-31', 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop']
     ];
     
-    $stmt = $pdo->prepare("INSERT IGNORE INTO products (name, description, price, stock_quantity, category, expiry_date) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT IGNORE INTO products (name, description, price, stock_quantity, category, expiry_date, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($products as $product) {
         $stmt->execute($product);
     }

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Fix Database - Super Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 mb-4">🔧 Auto Fix Database</h1>
+                    <p class="text-gray-600">Fix the Sales Analytics loading issue automatically</p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-blue-800 mb-4">What this will fix:</h2>
+                    <ul class="space-y-2 text-blue-700">
+                        <li>✅ Create database and tables if they don't exist</li>
+                        <li>✅ Add sample products and users</li>
+                        <li>✅ Generate sample orders for analytics</li>
+                        <li>✅ Fix "Loading analytics data..." issue</li>
+                        <li>✅ Enable real-time sales analytics</li>
+                    </ul>
+                </div>
+
+                <div class="text-center">
+                    <button id="fixButton" onclick="runDatabaseFix()" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200">
+                        🚀 Run Auto Fix
+                    </button>
+                </div>
+
+                <div id="loadingSection" class="hidden mt-8">
+                    <div class="text-center">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mb-4"></div>
+                        <p class="text-gray-600">Fixing database and creating sample data...</p>
+                        <p class="text-sm text-gray-500 mt-2">This may take a few moments</p>
+                    </div>
+                </div>
+
+                <div id="resultSection" class="hidden mt-8">
+                    <div id="resultContent"></div>
+                </div>
+
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">After the fix:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">📊 Sales Analytics</h4>
+                            <p class="text-sm text-gray-600">The analytics section will show real data instead of loading messages</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">🔄 Auto-refresh</h4>
+                            <p class="text-sm text-gray-600">Real-time updates will work every 30 seconds</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">📈 Charts</h4>
+                            <p class="text-sm text-gray-600">Sales and category performance charts will display properly</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">🏆 Top Products</h4>
+                            <p class="text-sm text-gray-600">Best-selling products list will show actual data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runDatabaseFix() {
+            const fixButton = document.getElementById('fixButton');
+            const loadingSection = document.getElementById('loadingSection');
+            const resultSection = document.getElementById('resultSection');
+            const resultContent = document.getElementById('resultContent');
+
+            // Show loading state
+            fixButton.disabled = true;
+            fixButton.textContent = '🔄 Fixing...';
+            loadingSection.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+
+            try {
+                // Run the PHP fix script
+                const response = await fetch('fix_database_automatically.php');
+                const html = await response.text();
+                
+                // Display the result
+                resultContent.innerHTML = html;
+                resultSection.classList.remove('hidden');
+                
+                // Update button
+                fixButton.textContent = '✅ Fix Completed!';
+                fixButton.className = 'bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors duration-200';
+                
+            } catch (error) {
+                console.error('Error running database fix:', error);
+                resultContent.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-red-800 mb-2">❌ Error occurred</h3>
+                        <p class="text-red-700">Failed to run the database fix. Please check your server configuration.</p>
+                        <p class="text-sm text-red-600 mt-2">Error: ${error.message}</p>
+                    </div>
+                `;
+                resultSection.classList.remove('hidden');
+                
+                // Reset button
+                fixButton.textContent = '🔄 Try Again';
+                fixButton.disabled = false;
+            }
+
+            // Hide loading
+            loadingSection.classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 

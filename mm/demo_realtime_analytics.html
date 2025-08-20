@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Sales Analytics Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .theme-blue { background-color: #3b82f6; }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="theme-blue min-h-screen">
+    <div class="container mx-auto px-6 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">🔄 Real-time Sales Analytics Demo</h1>
+            <p class="text-white text-lg">Watch the charts update automatically every 30 seconds!</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Sales Overview Chart -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Sales Overview</h3>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full pulse-animation"></div>
+                        <span class="text-sm text-green-600">Live</span>
+                    </div>
+                </div>
+                <canvas id="salesChart" width="400" height="200"></canvas>
+            </div>
+            
+            <!-- Top Products -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Top Products</h3>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full pulse-animation"></div>
+                        <span class="text-sm text-green-600">Live</span>
+                    </div>
+                </div>
+                <div id="top-products" class="space-y-3">
+                    <div class="text-gray-500 text-center py-8">Loading live data...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Category Performance Chart -->
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Category Performance</h3>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full pulse-animation"></div>
+                    <span class="text-sm text-green-600">Live</span>
+                </div>
+            </div>
+            <canvas id="categoryChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Real-time Status -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Real-time Status</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-green-600">🔄</div>
+                    <div class="text-sm text-gray-600">Auto-refresh</div>
+                    <div class="text-xs text-green-600">Every 30 seconds</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">📊</div>
+                    <div class="text-sm text-gray-600">Live Charts</div>
+                    <div class="text-xs text-blue-600">Real-time updates</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-purple-600">🔔</div>
+                    <div class="text-sm text-gray-600">Notifications</div>
+                    <div class="text-xs text-purple-600">Update alerts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">How It Works</h3>
+            <div class="space-y-2 text-sm text-gray-600">
+                <div>✅ <strong>Automatic Updates:</strong> Charts refresh every 30 seconds automatically</div>
+                <div>✅ <strong>Real-time Indicators:</strong> Green dots show live data status</div>
+                <div>✅ <strong>Update Notifications:</strong> Pop-up alerts when data is refreshed</div>
+                <div>✅ <strong>Last Update Time:</strong> Shows when data was last updated</div>
+                <div>✅ <strong>Smooth Animations:</strong> Charts animate when new data loads</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo data for real-time updates
+        let demoData = {
+            sales_data: [
+                { date: '2025-07-20', sales: 629.99 },
+                { date: '2025-07-19', sales: 578.96 },
+                { date: '2025-07-18', sales: 450.00 },
+                { date: '2025-07-17', sales: 320.50 },
+                { date: '2025-07-16', sales: 280.75 },
+                { date: '2025-07-15', sales: 420.25 },
+                { date: '2025-07-14', sales: 380.00 }
+            ],
+            top_products: [
+                { name: 'Smart Watch', total_sold: 5, total_revenue: 499.95 },
+                { name: 'Wireless Earbuds', total_sold: 8, total_revenue: 399.92 },
+                { name: 'Laptop', total_sold: 2, total_revenue: 1799.98 },
+                { name: 'Bluetooth Speaker', total_sold: 6, total_revenue: 539.94 },
+                { name: 'Smartphone', total_sold: 3, total_revenue: 1799.97 }
+            ],
+            category_sales: [
+                { category: 'Electronics', total_revenue: 3039.76 },
+                { category: 'Fashion', total_revenue: 450.00 },
+                { category: 'Home & Living', total_revenue: 280.75 },
+                { category: 'Sports & Fitness', total_revenue: 320.50 }
+            ]
+        };
+
+        // Initialize charts
+        let salesChart, categoryChart;
+
+        function initializeCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: demoData.sales_data.map(item => item.date).reverse(),
+                    datasets: [{
+                        label: 'Sales (৳)',
+                        data: demoData.sales_data.map(item => item.sales).reverse(),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 1000 },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '৳' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: demoData.category_sales.map(item => item.category),
+                    datasets: [{
+                        data: demoData.category_sales.map(item => item.total_revenue),
+                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 1000 },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ৳' + context.parsed.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            updateTopProducts();
+        }
+
+        function updateTopProducts() {
+            const topProductsDiv = document.getElementById('top-products');
+            topProductsDiv.innerHTML = '';
+            
+            demoData.top_products.forEach((product, index) => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition-colors';
+                productDiv.innerHTML = `
+                    <div>
+                        <div class="font-medium">${index + 1}. ${product.name}</div>
+                        <div class="text-sm text-gray-500">${product.total_sold} units sold</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-medium">৳${product.total_revenue.toFixed(2)}</div>
+                        <div class="text-sm text-gray-500">Revenue</div>
+                    </div>
+                `;
+                topProductsDiv.appendChild(productDiv);
+            });
+        }
+
+        function updateCharts() {
+            // Simulate new data
+            demoData.sales_data.forEach(day => {
+                day.sales += Math.random() * 50 - 25; // Add some variation
+                day.sales = Math.max(0, day.sales); // Ensure non-negative
+            });
+
+            demoData.top_products.forEach(product => {
+                product.total_sold += Math.floor(Math.random() * 3); // Add some sales
+                product.total_revenue = product.total_sold * (product.total_revenue / (product.total_sold - 1 || 1));
+            });
+
+            // Update charts
+            salesChart.data.datasets[0].data = demoData.sales_data.map(item => item.sales).reverse();
+            salesChart.update('active');
+
+            categoryChart.data.datasets[0].data = demoData.category_sales.map(item => item.total_revenue);
+            categoryChart.update('active');
+
+            updateTopProducts();
+
+            // Show notification
+            showNotification('Data updated at ' + new Date().toLocaleTimeString());
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white p-3 rounded shadow-lg z-50';
+            notification.innerHTML = '🔄 ' + message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Start auto-refresh
+        initializeCharts();
+        setInterval(updateCharts, 30000); // Update every 30 seconds
+
+        // Show initial notification
+        setTimeout(() => {
+            showNotification('Real-time analytics demo started!');
+        }, 1000);
+    </script>
+</body>
+</html> 

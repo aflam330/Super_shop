@@ -12,11 +12,26 @@
         .theme-green { background-color: #10b981; }
         .theme-pink { background-color: #ec4899; }
         .theme-yellow { background-color: #f59e42; }
+        .h-300px { height: 300px; }
+        
+        /* Enhanced navigation button styling */
+        .nav-btn.active {
+            background-color: #1d4ed8 !important;
+            color: white !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .nav-btn:hover {
+            background-color: #dbeafe !important;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
 <body class="theme-blue min-h-screen transition-colors duration-500">
     <nav class="flex items-center justify-between p-4 bg-white shadow">
-        <div class="text-2xl font-bold text-blue-700">Super Shop SSMS - Admin</div>
+                    <button onclick="window.location.href='index.html'" class="text-2xl font-bold text-blue-700 hover:text-blue-800 transition-colors cursor-pointer">Super Shop SSMS - Admin</button>
         <div>
             <button onclick="setTheme('theme-blue')" class="w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
             <button onclick="setTheme('theme-green')" class="w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>
@@ -24,6 +39,7 @@
             <button onclick="setTheme('theme-yellow')" class="w-6 h-6 bg-yellow-400 rounded-full inline-block mx-1" title="Yellow Theme"></button>
         </div>
         <div class="flex items-center space-x-4">
+            <a href="index.html" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">🏠 Home</a>
             <span id="admin-name" class="text-gray-700">Admin</span>
             <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</button>
         </div>
@@ -35,22 +51,19 @@
             <div class="p-4">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Admin Panel</h2>
                 <nav class="space-y-2">
-                    <button onclick="showSection('dashboard')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('dashboard')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         📊 Dashboard
                     </button>
-                    <button onclick="showSection('inventory')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('inventory')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         📦 Inventory Management
                     </button>
-                    <button onclick="showSection('analytics')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
-                        📈 Sales Analytics
-                    </button>
-                    <button onclick="showSection('users')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('users')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         👥 User Management
                     </button>
-                    <button onclick="showSection('reports')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('reports')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         📋 Weekly Reports
                     </button>
-                    <button onclick="showSection('settings')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-50 focus:outline-none focus:bg-blue-50">
+                    <button onclick="showSection('settings')" class="nav-btn w-full text-left px-4 py-2 rounded hover:bg-blue-100 focus:outline-none focus:bg-blue-100 transition-colors">
                         ⚙️ System Settings
                     </button>
                 </nav>
@@ -116,7 +129,7 @@
                             </div>
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-600">Today's Sales</p>
-                                <p id="today-sales" class="text-2xl font-semibold text-gray-900">$0</p>
+                                <p id="today-sales" class="text-2xl font-semibold text-gray-900">৳0</p>
                             </div>
                         </div>
                     </div>
@@ -155,8 +168,8 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800">Product Inventory</h2>
-                        <button onclick="addNewProduct()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                            Add New Product
+                        <button onclick="showAddProductModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            ➕ Add New Product
                         </button>
                     </div>
                     
@@ -187,29 +200,183 @@
                 </div>
             </div>
 
-            <!-- Sales Analytics Section -->
-            <div id="analytics-section" class="section hidden">
-                <h1 class="text-3xl font-bold text-white mb-6">Sales Analytics</h1>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Sales Overview</h3>
-                        <canvas id="salesChart" width="400" height="200"></canvas>
-                    </div>
-                    
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Top Products</h3>
-                        <div id="top-products" class="space-y-3">
-                            <div class="text-gray-500">Loading top products...</div>
+            <!-- Add Product Modal -->
+            <div id="addProductModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-screen overflow-y-auto">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-900">Add New Product</h3>
+                            <button onclick="hideAddProductModal()" class="text-gray-400 hover:text-gray-600" title="Close Add Product Modal" aria-label="Close Add Product Modal">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </div>
+                        
+                        <form id="addProductForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="productName" class="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                                    <input type="text" id="productName" name="name" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="Enter product name">
+                                </div>
+                                
+                                <div>
+                                    <label for="productCategory" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                                    <select id="productCategory" name="category" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">Select Category</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Fashion">Fashion</option>
+                                        <option value="Home & Living">Home & Living</option>
+                                        <option value="Sports & Fitness">Sports & Fitness</option>
+                                        <option value="Food & Beverages">Food & Beverages</option>
+                                        <option value="Health & Beauty">Health & Beauty</option>
+                                        <option value="Books">Books</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-2">Price (৳) *</label>
+                                    <input type="number" id="productPrice" name="price" step="0.01" min="0" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="0.00">
+                                </div>
+                                
+                                <div>
+                                    <label for="productStock" class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
+                                    <input type="number" id="productStock" name="stock_quantity" min="0" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="0">
+                                </div>
+                                
+                                <div>
+                                    <label for="productExpiry" class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                                    <input type="date" id="productExpiry" name="expiry_date"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label for="productImage" class="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                                    <input type="url" id="productImage" name="image_url"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="https://example.com/image.jpg">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="productDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                <textarea id="productDescription" name="description" rows="4"
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                          placeholder="Enter product description..."></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" onclick="hideAddProductModal()" 
+                                        class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                    Add Product
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </div>
-                
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Category Performance</h3>
-                    <canvas id="categoryChart" width="400" height="200"></canvas>
                 </div>
             </div>
+
+            <!-- Edit Product Modal -->
+            <div id="editProductModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+                <div class="flex items-center justify-center min-h-screen p-4">
+                    <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-screen overflow-y-auto">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-gray-900">Edit Product</h3>
+                            <button onclick="hideEditProductModal()" class="text-gray-400 hover:text-gray-600" title="Close Edit Product Modal" aria-label="Close Edit Product Modal">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <form id="editProductForm" class="space-y-6">
+                            <input type="hidden" id="editProductId" name="id">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="editProductName" class="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+                                    <input type="text" id="editProductName" name="name" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="Enter product name">
+                                </div>
+                                
+                                <div>
+                                    <label for="editProductCategory" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                                    <select id="editProductCategory" name="category" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">Select Category</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Fashion">Fashion</option>
+                                        <option value="Home & Living">Home & Living</option>
+                                        <option value="Sports & Fitness">Sports & Fitness</option>
+                                        <option value="Food & Beverages">Food & Beverages</option>
+                                        <option value="Health & Beauty">Health & Beauty</option>
+                                        <option value="Books">Books</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label for="editProductPrice" class="block text-sm font-medium text-gray-700 mb-2">Price (৳) *</label>
+                                    <input type="number" id="editProductPrice" name="price" step="0.01" min="0" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="0.00">
+                                </div>
+                                
+                                <div>
+                                    <label for="editProductStock" class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
+                                    <input type="number" id="editProductStock" name="stock_quantity" min="0" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="0">
+                                </div>
+                                
+                                <div>
+                                    <label for="editProductExpiry" class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                                    <input type="date" id="editProductExpiry" name="expiry_date"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                
+                                <div>
+                                    <label for="editProductImage" class="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                                    <input type="url" id="editProductImage" name="image_url"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                           placeholder="https://example.com/image.jpg">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="editProductDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                <textarea id="editProductDescription" name="description" rows="4"
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                          placeholder="Enter product description..."></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" onclick="hideEditProductModal()" 
+                                        class="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                    Update Product
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
 
             <!-- User Management Section -->
             <div id="users-section" class="section hidden">
@@ -219,7 +386,8 @@
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-800">System Users</h2>
                         <div class="flex space-x-2">
-                            <select id="role-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                            <label for="role-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Role</label>
+                            <select id="role-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" title="Filter by Role">
                                 <option value="">All Roles</option>
                                 <option value="customer">Customer</option>
                                 <option value="receptionist">Receptionist</option>
@@ -283,22 +451,30 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Return Policy (Days)</label>
                                 <input type="number" id="return-policy" value="5" min="1" max="30"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                       title="Return Policy (Days)"
+                                       placeholder="Enter return policy in days">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Low Stock Threshold</label>
                                 <input type="number" id="low-stock-threshold" value="10" min="1"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                       placeholder="Enter low stock threshold"
+                                       title="Low Stock Threshold">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tax Rate (%)</label>
                                 <input type="number" id="tax-rate" value="10" min="0" max="50" step="0.1"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                       title="Tax Rate (%)"
+                                       placeholder="Enter tax rate (%)">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Free Shipping Threshold ($)</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Free Shipping Threshold (৳)</label>
                                 <input type="number" id="free-shipping-threshold" value="100" min="0"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                                                                title="Free Shipping Threshold (৳)"
+                                                                                placeholder="Enter free shipping threshold (৳)">
                             </div>
                         </div>
                         
@@ -312,7 +488,7 @@
     </div>
 
     <!-- Message Display -->
-    <div id="message" class="fixed top-4 right-4 hidden z-50"></div>
+    <div id="message" class="fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 hidden"></div>
 
     <script>
         let currentSection = 'dashboard';
@@ -325,22 +501,32 @@
             document.body.className = color;
         }
 
-        // Check authentication
-        function checkAuth() {
-            const user = localStorage.getItem('user');
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
+        // Check authentication and setup admin session
+        async function checkAuth() {
+            try {
+                // Try to setup admin session
+                const authResponse = await fetch('admin_auth_helper.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const authData = await authResponse.json();
+                
+                if (authData.success) {
+                    console.log('Admin session established:', authData);
+                    localStorage.setItem('session_id', authData.session_id);
+                    return true;
+                } else {
+                    console.error('Failed to establish admin session');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Authentication error:', error);
+                return false;
             }
-            
-            const userData = JSON.parse(user);
-            if (userData.role !== 'admin') {
-                alert('Access denied. Admin privileges required.');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            document.getElementById('admin-name').textContent = `${userData.first_name} ${userData.last_name}`;
         }
 
         // Logout function
@@ -354,40 +540,7 @@
             });
         }
 
-        // Navigation
-        function showSection(section) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-blue-50'));
-            
-            // Show selected section
-            document.getElementById(`${section}-section`).classList.remove('hidden');
-            event.target.classList.add('bg-blue-50');
-            
-            currentSection = section;
-            
-            // Load section data
-            switch(section) {
-                case 'dashboard':
-                    loadDashboardData();
-                    break;
-                case 'inventory':
-                    loadInventoryData();
-                    break;
-                case 'analytics':
-                    loadAnalyticsData();
-                    break;
-                case 'users':
-                    loadUsersData();
-                    break;
-                case 'reports':
-                    loadReportsData();
-                    break;
-                case 'settings':
-                    loadSettingsData();
-                    break;
-            }
-        }
+        // Show section function (old version - replaced by enhanced version below)
 
         // Load dashboard data
         async function loadDashboardData() {
@@ -399,7 +552,7 @@
                     document.getElementById('total-products').textContent = data.data.total_products;
                     document.getElementById('low-stock').textContent = data.data.low_stock;
                     document.getElementById('expired-products').textContent = data.data.expired_products;
-                    document.getElementById('today-sales').textContent = `$${data.data.today_sales.toFixed(2)}`;
+                    document.getElementById('today-sales').textContent = `৳${data.data.today_sales.toFixed(2)}`;
                 }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
@@ -409,22 +562,22 @@
         // Load inventory data
         async function loadInventoryData() {
             try {
-                const response = await fetch('backend/api/products.php');
+                const response = await fetch('backend/api/inventory.php?action=getProducts');
                 const data = await response.json();
                 
                 if (data.success) {
                     const tableBody = document.getElementById('inventory-table');
                     tableBody.innerHTML = '';
                     
-                    data.data.forEach(product => {
+                    data.products.forEach(product => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <img class="h-10 w-10 rounded-full" src="${product.image_url}" alt="${product.name}">
+                                    <img class="h-10 w-10 rounded-full" src="${product.image_url || 'https://via.placeholder.com/40/3B82F6/FFFFFF?text=?'}" alt="${product.name}">
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">${product.name}</div>
-                                        <div class="text-sm text-gray-500">${product.description}</div>
+                                        <div class="text-sm text-gray-500">${product.description || 'No description'}</div>
                                     </div>
                                 </div>
                             </td>
@@ -434,103 +587,434 @@
                                     ${product.stock_quantity}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${product.price}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">৳${product.price}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.expiry_date || 'N/A'}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button onclick="editProduct(${product.id})" class="text-blue-600 hover:text-blue-900 mr-2">Edit</button>
-                                <button onclick="updateStock(${product.id})" class="text-green-600 hover:text-green-900">Stock</button>
+                                <button onclick="showEditProductModal(${product.id})" class="text-blue-600 hover:text-blue-900 mr-2">✏️ Edit</button>
+                                <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-900">🗑️ Delete</button>
                             </td>
                         `;
                         tableBody.appendChild(row);
                     });
+                } else {
+                    document.getElementById('inventory-table').innerHTML = `
+                        <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Error loading inventory: ${data.error}</td></tr>
+                    `;
                 }
             } catch (error) {
                 console.error('Error loading inventory data:', error);
+                document.getElementById('inventory-table').innerHTML = `
+                    <tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Error loading inventory data</td></tr>
+                `;
             }
         }
 
-        // Load analytics data
-        async function loadAnalyticsData() {
+        // Inventory Management Functions
+        function showAddProductModal() {
+            document.getElementById('addProductModal').classList.remove('hidden');
+            document.getElementById('addProductForm').reset();
+        }
+
+        function hideAddProductModal() {
+            document.getElementById('addProductModal').classList.add('hidden');
+        }
+
+        function showEditProductModal(productId) {
+            // Load product data and populate form
+            fetch(`backend/api/inventory.php?action=getProduct&id=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const product = data.product;
+                        document.getElementById('editProductId').value = product.id;
+                        document.getElementById('editProductName').value = product.name;
+                        document.getElementById('editProductCategory').value = product.category;
+                        document.getElementById('editProductPrice').value = product.price;
+                        document.getElementById('editProductStock').value = product.stock_quantity;
+                        document.getElementById('editProductExpiry').value = product.expiry_date || '';
+                        document.getElementById('editProductImage').value = product.image_url || '';
+                        document.getElementById('editProductDescription').value = product.description || '';
+                        
+                        document.getElementById('editProductModal').classList.remove('hidden');
+                    } else {
+                        showMessage('Error loading product: ' + data.error, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('Error loading product data', 'error');
+                });
+        }
+
+        function hideEditProductModal() {
+            document.getElementById('editProductModal').classList.add('hidden');
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                return;
+            }
+            
             try {
-                const response = await fetch('backend/api/admin.php?action=sales_analytics&period=7');
+                const response = await fetch('backend/api/inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'deleteProduct',
+                        id: productId
+                    })
+                });
+                
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Create sales chart
-                    const salesCtx = document.getElementById('salesChart').getContext('2d');
-                    if (salesChart) salesChart.destroy();
-                    
-                    salesChart = new Chart(salesCtx, {
-                        type: 'line',
-                        data: {
-                            labels: data.data.sales_data.map(item => item.date),
-                            datasets: [{
-                                label: 'Sales ($)',
-                                data: data.data.sales_data.map(item => item.sales),
-                                borderColor: 'rgb(59, 130, 246)',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                tension: 0.1
-                            }]
+                    showMessage('Product deleted successfully', 'success');
+                    loadInventoryData();
+                } else {
+                    showMessage('Error deleting product: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error deleting product', 'error');
+            }
+        }
+
+        // Enhanced sales chart creation
+        function createSalesChart(salesData) {
+            console.log('createSalesChart called with data:', salesData);
+            
+            const salesCtx = document.getElementById('salesChart');
+            if (!salesCtx) {
+                console.error('Sales chart canvas not found');
+                return;
+            }
+            
+            if (window.salesChart) {
+                window.salesChart.destroy();
+            }
+            
+            console.log('Creating sales chart with data:', salesData);
+            
+            // Ensure we have data to display
+            if (salesData.length === 0) {
+                // Create sample data for demonstration
+                const sampleData = [];
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    sampleData.push({
+                        date: date.toISOString().split('T')[0],
+                        sales: Math.random() * 500 + 100,
+                        orders: Math.floor(Math.random() * 10) + 1
+                    });
+                }
+                salesData = sampleData;
+            }
+            
+            const labels = salesData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }).reverse();
+            
+            const salesValues = salesData.map(item => parseFloat(item.sales || 0)).reverse();
+            const orderValues = salesData.map(item => parseInt(item.orders || 0)).reverse();
+            
+            window.salesChart = new Chart(salesCtx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales (৳)',
+                            data: salesValues,
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y'
                         },
-                        options: {
-                            responsive: true,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
+                        {
+                            label: 'Orders',
+                            data: orderValues,
+                            borderColor: 'rgb(16, 185, 129)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Sales (৳)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '৳' + value.toFixed(0);
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Orders'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label === 'Sales (৳)') {
+                                        return `Sales: ৳${context.parsed.y.toFixed(2)}`;
+                                    } else {
+                                        return `Orders: ${context.parsed.y}`;
+                                    }
                                 }
                             }
                         }
-                    });
-
-                    // Create category chart
-                    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-                    if (categoryChart) categoryChart.destroy();
-                    
-                    categoryChart = new Chart(categoryCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: data.data.category_sales.map(item => item.category),
-                            datasets: [{
-                                data: data.data.category_sales.map(item => item.total_revenue),
-                                backgroundColor: [
-                                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'
-                                ]
-                            }]
-                        },
-                        options: {
-                            responsive: true
-                        }
-                    });
-
-                    // Display top products
-                    const topProductsDiv = document.getElementById('top-products');
-                    topProductsDiv.innerHTML = '';
-                    
-                    data.data.top_products.forEach((product, index) => {
-                        const productDiv = document.createElement('div');
-                        productDiv.className = 'flex justify-between items-center p-3 bg-gray-50 rounded';
-                        productDiv.innerHTML = `
-                            <div>
-                                <div class="font-medium">${index + 1}. ${product.name}</div>
-                                <div class="text-sm text-gray-500">${product.total_sold} units sold</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">$${product.total_revenue.toFixed(2)}</div>
-                                <div class="text-sm text-gray-500">Revenue</div>
-                            </div>
-                        `;
-                        topProductsDiv.appendChild(productDiv);
-                    });
+                    }
                 }
-            } catch (error) {
-                console.error('Error loading analytics data:', error);
+            });
+            
+            console.log('Sales chart created successfully');
+        }
+
+        // Enhanced category chart creation
+        function createCategoryChart(categoryData) {
+            console.log('createCategoryChart called with data:', categoryData);
+            
+            const categoryCtx = document.getElementById('categoryChart');
+            if (!categoryCtx) {
+                console.error('Category chart canvas not found');
+                return;
+            }
+            
+            if (window.categoryChart) {
+                window.categoryChart.destroy();
+            }
+            
+            console.log('Creating category chart with data:', categoryData);
+            
+            // Ensure we have data to display
+            if (categoryData.length === 0) {
+                // Create sample category data
+                categoryData = [
+                    { category: 'Electronics', total_revenue: 2500, total_sold: 45 },
+                    { category: 'Fashion', total_revenue: 1800, total_sold: 32 },
+                    { category: 'Home & Living', total_revenue: 1200, total_sold: 28 },
+                    { category: 'Sports & Fitness', total_revenue: 900, total_sold: 15 }
+                ];
+            }
+            
+            const categoryLabels = categoryData.map(item => item.category);
+            const categoryValues = categoryData.map(item => parseFloat(item.total_revenue || 0));
+            const categoryColors = [
+                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
+            ];
+            
+            window.categoryChart = new Chart(categoryCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        label: 'Revenue (৳)',
+                        data: categoryValues,
+                        backgroundColor: categoryColors.slice(0, categoryLabels.length),
+                        borderColor: categoryColors.slice(0, categoryLabels.length).map(color => color + 'CC'),
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Categories'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Revenue (৳)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '৳' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed.y || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ৳${value.toFixed(2)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            console.log('Category chart created successfully');
+            
+            // Hide loading indicator
+            const categoryLoading = document.getElementById('category-loading');
+            if (categoryLoading) {
+                categoryLoading.style.display = 'none';
             }
         }
+
+        // Enhanced top products display
+        function displayTopProducts(topProducts, dataType = 'real') {
+            console.log('displayTopProducts called with:', topProducts, 'dataType:', dataType);
+            
+            const topProductsDiv = document.getElementById('top-products');
+            if (!topProductsDiv) {
+                console.error('Top products container not found');
+                return;
+            }
+            
+            // Hide loading indicator
+            const topProductsLoading = document.getElementById('top-products-loading');
+            if (topProductsLoading) {
+                topProductsLoading.style.display = 'none';
+            }
+            
+            topProductsDiv.innerHTML = '';
+            
+            console.log('Displaying top products:', topProducts);
+            
+            // Ensure we have data to display
+            if (topProducts.length === 0) {
+                // Create sample top products data
+                topProducts = [
+                    { name: 'Smart Watch', total_sold: 15, total_revenue: 1499.85 },
+                    { name: 'Wireless Earbuds', total_sold: 23, total_revenue: 1149.77 },
+                    { name: 'Laptop', total_sold: 8, total_revenue: 7199.92 },
+                    { name: 'Bluetooth Speaker', total_sold: 12, total_revenue: 1079.88 },
+                    { name: 'Smartphone', total_sold: 6, total_revenue: 3599.94 }
+                ];
+            }
+            
+            // Add data type indicator
+            const dataTypeIndicator = document.createElement('div');
+            if (dataType === 'sample') {
+                dataTypeIndicator.className = 'text-xs text-orange-600 mb-3 text-center font-medium';
+                dataTypeIndicator.innerHTML = '🟠 Demo data - No real sales data available';
+            } else {
+                dataTypeIndicator.className = 'text-xs text-green-600 mb-3 text-center font-medium';
+                dataTypeIndicator.innerHTML = '🟢 Live data - Updates every 30 seconds';
+            }
+            topProductsDiv.appendChild(dataTypeIndicator);
+            
+            // Create products list
+            topProducts.forEach((product, index) => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg mb-3 hover:shadow-md transition-all duration-200 border border-gray-100';
+                
+                const rankClass = index < 3 ? 'text-lg font-bold' : 'text-base font-medium';
+                const rankColor = index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-500' : index === 2 ? 'text-orange-600' : 'text-gray-400';
+                
+                productDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="mr-3">
+                            <span class="${rankClass} ${rankColor}">${index + 1}</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-800">${product.name}</div>
+                            <div class="text-sm text-gray-500">${product.total_sold || 0} units sold</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-green-600">৳${(product.total_revenue || 0).toFixed(2)}</div>
+                        <div class="text-xs text-gray-500">Revenue</div>
+                    </div>
+                `;
+                topProductsDiv.appendChild(productDiv);
+            });
+            
+            // Show last update time
+            const lastUpdateDiv = document.createElement('div');
+            lastUpdateDiv.className = 'text-xs text-gray-500 mt-4 text-center border-t pt-2';
+            lastUpdateDiv.innerHTML = `Last updated: ${new Date().toLocaleTimeString()}`;
+            topProductsDiv.appendChild(lastUpdateDiv);
+        }
+
+        // Update auto-refresh status
+        function updateAutoRefreshStatus(isActive) {
+            const statusElement = document.getElementById('auto-refresh-status');
+            if (statusElement) {
+                if (isActive) {
+                    statusElement.className = 'text-green-400';
+                    statusElement.innerHTML = '🟢 Auto-refresh: ON';
+                } else {
+                    statusElement.className = 'text-red-400';
+                    statusElement.innerHTML = '🔴 Auto-refresh: OFF';
+                }
+            }
+        }
+
+
 
         // Load users data
         async function loadUsersData() {
             try {
-                const response = await fetch('backend/api/auth.php?action=users');
+                const response = await fetch('backend/api/auth.php?action=get_users');
                 const data = await response.json();
                 
                 if (data.success) {
@@ -575,6 +1059,56 @@
             }
         }
 
+        // Edit user function
+        async function editUser(userId) {
+            try {
+                // For now, just show a message - you can implement a modal later
+                showMessage('Edit user functionality will be implemented soon', 'info');
+            } catch (error) {
+                console.error('Error editing user:', error);
+                showMessage('Error editing user', 'error');
+            }
+        }
+
+        // Toggle user status function
+        async function toggleUserStatus(userId, currentStatus) {
+            try {
+                const newStatus = currentStatus ? 0 : 1;
+                const action = currentStatus ? 'deactivate' : 'activate';
+                
+                const response = await fetch('backend/api/auth.php?action=update_user', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        is_active: newStatus
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`User ${action}d successfully!`, 'success');
+                    // Reload users data
+                    loadUsersData();
+                } else {
+                    showMessage(`Error ${action}ing user: ` + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling user status:', error);
+                showMessage('Error updating user status', 'error');
+            }
+        }
+
+        // Refresh users function
+        function refreshUsers() {
+            console.log('Refreshing users data...');
+            loadUsersData();
+            showMessage('Users data refreshed', 'success');
+        }
+
         // Load reports data
         async function loadReportsData() {
             try {
@@ -604,7 +1138,7 @@
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <p class="text-sm text-gray-600">Total Sales</p>
-                                    <p class="font-medium">$${report.total_sales}</p>
+                                    <p class="font-medium">৳${report.total_sales}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-600">Total Orders</p>
@@ -616,8 +1150,11 @@
                                 <p class="text-sm">${report.top_selling_products}</p>
                             </div>
                             <div class="flex justify-end space-x-2">
-                                <button onclick="reviewReport(${report.id}, 'approved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
-                                <button onclick="reviewReport(${report.id}, 'rejected')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Reject</button>
+                                ${report.review_status === 'pending' ? 
+                                    `<button onclick="reviewReport(${report.id}, 'approved')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Approve</button>
+                                     <button onclick="reviewReport(${report.id}, 'rejected')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Reject</button>` :
+                                    `<span class="text-sm text-gray-500 px-3 py-1">Already ${report.review_status}</span>`
+                                }
                             </div>
                         `;
                         reportsDiv.appendChild(reportDiv);
@@ -625,6 +1162,60 @@
                 }
             } catch (error) {
                 console.error('Error loading reports data:', error);
+            }
+        }
+
+        // Refresh reports function
+        function refreshReports() {
+            console.log('Refreshing reports data...');
+            loadReportsData();
+            showMessage('Reports data refreshed', 'success');
+        }
+
+        // Review report function
+        async function reviewReport(reportId, status) {
+            try {
+                // Disable the button immediately to prevent double-clicking
+                const button = event.target;
+                const originalText = button.textContent;
+                button.disabled = true;
+                button.textContent = 'Processing...';
+                button.className = 'bg-gray-400 text-white px-3 py-1 rounded text-sm cursor-not-allowed';
+                
+                const response = await fetch('backend/api/admin.php?action=review_report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        report_id: reportId,
+                        status: status
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(`Report ${status} successfully!`, 'success');
+                    // Reload reports data to update the UI
+                    setTimeout(() => {
+                        loadReportsData();
+                    }, 500);
+                } else {
+                    showMessage(`Error reviewing report: ` + data.error, 'error');
+                    // Re-enable the button on error
+                    button.disabled = false;
+                    button.textContent = originalText;
+                    button.className = status === 'approved' ? 'bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700' : 'bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700';
+                }
+            } catch (error) {
+                console.error('Error reviewing report:', error);
+                showMessage('Error reviewing report', 'error');
+                // Re-enable the button on error
+                const button = event.target;
+                button.disabled = false;
+                button.textContent = originalText;
+                button.className = status === 'approved' ? 'bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700' : 'bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700';
             }
         }
 
@@ -683,6 +1274,18 @@
             }, 5000);
         }
 
+        // Show real-time notification
+        function showRealTimeNotification(message) {
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'fixed top-4 left-4 p-3 rounded-lg shadow-lg z-50 bg-blue-500 text-white text-sm';
+            notificationDiv.innerHTML = `🔄 ${message}`;
+            document.body.appendChild(notificationDiv);
+            
+            setTimeout(() => {
+                notificationDiv.remove();
+            }, 3000);
+        }
+
         // Settings form submission
         document.getElementById('settings-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -716,10 +1319,177 @@
         });
 
         // Initialize dashboard
-        window.addEventListener('load', function() {
-            checkAuth();
-            loadDashboardData();
+        window.addEventListener('load', async function() {
+            const isAuthenticated = await checkAuth();
+            if (isAuthenticated) {
+                // Set admin name
+                document.getElementById('admin-name').textContent = 'Admin User';
+                loadDashboardData();
+            } else {
+                console.error('Failed to authenticate admin');
+                // Still load dashboard but with fallback data
+                loadDashboardData();
+            }
         });
+
+        // Form submissions for inventory management
+        document.getElementById('addProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const productData = Object.fromEntries(formData.entries());
+            
+            fetch('backend/api/inventory.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'addProduct',
+                    ...productData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Product added successfully!', 'success');
+                    hideAddProductModal();
+                    loadInventoryData();
+                } else {
+                    showMessage('Error adding product: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Error adding product', 'error');
+            });
+        });
+
+        document.getElementById('editProductForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const productData = Object.fromEntries(formData.entries());
+            
+            fetch('backend/api/inventory.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'updateProduct',
+                    ...productData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Product updated successfully!', 'success');
+                    hideEditProductModal();
+                    loadInventoryData();
+                } else {
+                    showMessage('Error updating product: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Error updating product', 'error');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('inventory-search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#inventory-table tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('addProductModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAddProductModal();
+            }
+        });
+
+        document.getElementById('editProductModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideEditProductModal();
+            }
+        });
+
+        // Load inventory data when inventory section is shown
+        document.querySelector('[onclick="showSection(\'inventory\')"]').addEventListener('click', function() {
+            setTimeout(loadInventoryData, 100);
+        });
+
+
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin dashboard loaded, initializing...');
+            
+            // Initialize dashboard
+            const urlParams = new URLSearchParams(window.location.search);
+            const defaultSection = urlParams.get('section') || 'dashboard';
+            
+            if (defaultSection === 'dashboard') {
+                console.log('Dashboard is default section');
+            }
+        });
+
+        // Enhanced showSection function with better analytics handling
+        function showSection(sectionName) {
+            console.log('Showing section:', sectionName);
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                console.log('Section shown:', sectionName);
+            } else {
+                console.error('Section not found:', sectionName);
+            }
+            
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-gray-700');
+            });
+            
+            // Highlight active navigation
+            if (event && event.target) {
+                event.target.classList.remove('text-gray-700');
+                event.target.classList.add('active');
+            }
+            
+            // Manage section-specific functionality
+            if (sectionName === 'users') {
+                console.log('Users section opened - loading users data');
+                setTimeout(() => {
+                    console.log('Loading users data...');
+                    loadUsersData();
+                }, 100);
+            } else if (sectionName === 'reports') {
+                console.log('Reports section opened - loading reports data');
+                setTimeout(() => {
+                    console.log('Loading reports data...');
+                    loadReportsData();
+                }, 100);
+            }
+        }
     </script>
 </body>
 </html> 

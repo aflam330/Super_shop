@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Analytics Test</h1>
+    <div id="status">Loading...</div>
+    <div id="data"></div>
+
+    <script>
+        async function testAnalytics() {
+            try {
+                // First, establish admin session
+                const authResponse = await fetch('admin_auth_helper.php', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const authData = await authResponse.json();
+                console.log('Auth response:', authData);
+                
+                if (authData.success) {
+                    document.getElementById('status').textContent = 'Authentication successful, loading analytics...';
+                    
+                    // Now call the analytics API
+                    const response = await fetch('backend/api/admin.php?action=sales_analytics&period=7', {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    console.log('Analytics response:', data);
+                    
+                    if (data.success) {
+                        document.getElementById('status').textContent = 'Analytics loaded successfully!';
+                        document.getElementById('data').innerHTML = `
+                            <h3>Sales Data:</h3>
+                            <pre>${JSON.stringify(data.data.sales_data, null, 2)}</pre>
+                            <h3>Top Products:</h3>
+                            <pre>${JSON.stringify(data.data.top_products, null, 2)}</pre>
+                        `;
+                    } else {
+                        document.getElementById('status').textContent = 'Analytics API error: ' + data.error;
+                    }
+                } else {
+                    document.getElementById('status').textContent = 'Authentication failed: ' + authData.error;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('status').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        // Run the test when page loads
+        testAnalytics();
+    </script>
+</body>
+</html> 

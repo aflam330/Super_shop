@@ -66,8 +66,8 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
--- Returns table with enhanced fields
-CREATE TABLE returns (
+-- Returns table with correct columns (no created_at)
+CREATE TABLE IF NOT EXISTS returns (
     id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     user_id INT,

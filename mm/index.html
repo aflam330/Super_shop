@@ -45,12 +45,12 @@
     // Simulate real-time featured/trending/offers
     function updateLiveSections() {
       const products = [
-        {name: 'Smart Watch', stock: 15, price: 99.99},
-        {name: 'Wireless Earbuds', stock: 25, price: 49.99},
-        {name: 'Laptop', stock: 8, price: 899.99},
-        {name: 'Smartphone', stock: 12, price: 599.99},
-        {name: 'Running Shoes', stock: 30, price: 79.99},
-        {name: 'Coffee Maker', stock: 12, price: 129.99}
+        {name: 'Smart Watch', stock: 15, price: 99.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop'},
+        {name: 'Wireless Earbuds', stock: 25, price: 49.99, image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=300&fit=crop'},
+        {name: 'Laptop', stock: 8, price: 899.99, image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop'},
+        {name: 'Smartphone', stock: 12, price: 599.99, image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop'},
+        {name: 'Running Shoes', stock: 30, price: 79.99, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop'},
+        {name: 'Coffee Maker', stock: 12, price: 129.99, image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400&h=300&fit=crop'}
       ];
       
       const featured = products[Math.floor(Math.random() * products.length)];
@@ -58,24 +58,27 @@
       
       document.getElementById('featured').innerHTML = `
         <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+          <img src="${featured.image}" alt="${featured.name}" class="w-full h-24 object-cover rounded mb-2">
           <div class="font-bold text-lg">${featured.name}</div>
-          <div class="text-sm text-gray-600">Stock: ${featured.stock} | Price: $${featured.price}</div>
+          <div class="text-sm text-gray-600">Stock: ${featured.stock} | Price: ৳${featured.price}</div>
           <button onclick="addToCart(${featured.name === 'Smart Watch' ? 1 : featured.name === 'Wireless Earbuds' ? 2 : featured.name === 'Laptop' ? 3 : featured.name === 'Smartphone' ? 5 : featured.name === 'Running Shoes' ? 7 : 12}, '${featured.name}', ${featured.price})" class="mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Add to Cart</button>
         </div>
       `;
       
       document.getElementById('trending').innerHTML = `
         <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+          <img src="${trending.image}" alt="${trending.name}" class="w-full h-24 object-cover rounded mb-2">
           <div class="font-bold text-lg">${trending.name}</div>
-          <div class="text-sm text-gray-600">Stock: ${trending.stock} | Price: $${trending.price}</div>
+          <div class="text-sm text-gray-600">Stock: ${trending.stock} | Price: ৳${trending.price}</div>
           <button onclick="addToCart(${trending.name === 'Smart Watch' ? 1 : trending.name === 'Wireless Earbuds' ? 2 : trending.name === 'Laptop' ? 3 : trending.name === 'Smartphone' ? 5 : trending.name === 'Running Shoes' ? 7 : 12}, '${trending.name}', ${trending.price})" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Add to Cart</button>
         </div>
       `;
       
       document.getElementById('offers').innerHTML = `
         <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+          <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=400&h=300&fit=crop" alt="Special Offers" class="w-full h-24 object-cover rounded mb-2">
           <div class="font-bold text-lg text-yellow-800">🎉 Special Offers!</div>
-          <div class="text-sm text-yellow-700">20% off on Electronics | Free shipping on orders above $100</div>
+          <div class="text-sm text-yellow-700">20% off on Electronics | Free shipping on orders above ৳100</div>
         </div>
       `;
     }
@@ -88,6 +91,7 @@
       const authLinks = document.getElementById('auth-links');
       const userInfo = document.getElementById('user-info');
       const historyLink = document.getElementById('history-link');
+      const dashboardMenuBtn = document.getElementById('dashboard-menu-btn');
       
       if (user) {
         authLinks.classList.add('hidden');
@@ -95,6 +99,13 @@
         document.getElementById('user-name').textContent = user.first_name || user.username;
         // Hide the main history link since it's now in user-info
         historyLink.classList.add('hidden');
+        
+        // Show dashboard menu button only for admin and receptionist
+        if (user.role === 'admin' || user.role === 'receptionist') {
+          dashboardMenuBtn.style.display = 'block';
+        } else {
+          dashboardMenuBtn.style.display = 'none';
+        }
       } else {
         authLinks.classList.remove('hidden');
         userInfo.classList.add('hidden');
@@ -102,6 +113,42 @@
         historyLink.classList.remove('hidden');
       }
     }
+    
+    // Toggle user menu dropdown
+    function toggleUserMenu() {
+      const userMenu = document.getElementById('user-menu');
+      userMenu.classList.toggle('hidden');
+    }
+    
+    // Close user menu when clicking outside
+    document.addEventListener('click', function(event) {
+      const userInfo = document.getElementById('user-info');
+      const userMenu = document.getElementById('user-menu');
+      
+      if (!userInfo.contains(event.target)) {
+        userMenu.classList.add('hidden');
+      }
+    });
+    
+    // Go to dashboard function
+    function goToDashboard() {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (user) {
+        switch (user.role) {
+          case 'admin':
+            window.location.href = 'admin-dashboard.html';
+            break;
+          case 'receptionist':
+            window.location.href = 'receptionist-dashboard.html';
+            break;
+          default:
+            // For customers, stay on the main page
+            alert('You are logged in as a customer. This is your main dashboard.');
+        }
+      }
+    }
+    
+
     
     // Logout function
     function logout() {
@@ -121,42 +168,296 @@
     .theme-green { background-color: #10b981; }
     .theme-pink { background-color: #ec4899; }
     .theme-yellow { background-color: #f59e42; }
-  </style>
+    
+    .hero-bg {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                  url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=600&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+    
+    /* Enhanced hover effects */
+    .nav-link {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .nav-link:hover {
+      transform: translateY(-2px);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -4px;
+      left: 50%;
+      background-color: #3b82f6;
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    
+    .theme-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .theme-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .product-card:hover img {
+      transform: scale(1.05);
+    }
+    
+    .product-card img {
+      transition: transform 0.3s ease;
+    }
+    
+    .add-to-cart-btn {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    }
+    
+    .add-to-cart-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .add-to-cart-btn:hover::before {
+      left: 100%;
+    }
+    
+    .feature-card {
+      transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-card:hover .feature-icon {
+      transform: scale(1.2) rotate(5deg);
+    }
+    
+    .feature-icon {
+      transition: all 0.3s ease;
+    }
+    
+    .hero-btn {
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+    
+    .hero-btn:hover::before {
+      left: 100%;
+    }
+    
+    .live-section-card {
+      transition: all 0.3s ease;
+    }
+    
+    .live-section-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .user-menu-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .user-menu-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .cart-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .cart-btn:hover svg {
+      transform: scale(1.1);
+    }
+    
+         .cart-btn svg {
+       transition: transform 0.3s ease;
+     }
+     
+     /* Enhanced Navigation Bar */
+     nav {
+       background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+       -webkit-backdrop-filter: blur(10px);
+       backdrop-filter: blur(10px);
+       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(59, 130, 246, 0.1);
+     }
+     
+     nav::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: 0;
+       right: 0;
+       height: 4px;
+       background: linear-gradient(90deg, #3b82f6, #1d4ed8, #3b82f6);
+       background-size: 200% 100%;
+       animation: shimmer 3s ease-in-out infinite;
+     }
+     
+     @keyframes shimmer {
+       0%, 100% { background-position: 0% 50%; }
+       50% { background-position: 100% 50%; }
+     }
+     
+     /* Enhanced Navigation Buttons */
+     .nav-btn {
+       position: relative;
+       overflow: hidden;
+       border: 1px solid transparent;
+       transition: all 0.3s ease;
+     }
+     
+     .nav-btn:hover {
+       transform: translateY(-2px);
+       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+       border-color: #d1d5db;
+     }
+     
+     .nav-btn::before {
+       content: '';
+       position: absolute;
+       top: 0;
+       left: -100%;
+       width: 100%;
+       height: 100%;
+       background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+       transition: left 0.5s ease;
+     }
+     
+     .nav-btn:hover::before {
+       left: 100%;
+     }
+     
+ 
+   </style>
 </head>
 <body class="theme-blue min-h-screen transition-colors duration-500">
-  <nav class="flex items-center justify-between p-4 bg-white shadow">
-    <div class="text-2xl font-bold text-blue-700">Super Shop</div>
-    <div>
-      <button onclick="setTheme('theme-blue')" class="w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
-      <button onclick="setTheme('theme-green')" class="w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>
-      <button onclick="setTheme('theme-pink')" class="w-6 h-6 bg-pink-500 rounded-full inline-block mx-1" title="Pink Theme"></button>
-      <button onclick="setTheme('theme-yellow')" class="w-6 h-6 bg-yellow-400 rounded-full inline-block mx-1" title="Yellow Theme"></button>
+         <nav class="flex items-center justify-between p-6 bg-white shadow-lg border-b-4 border-blue-600 sticky top-0 z-50">
+    <div class="flex items-center space-x-6">
+             <button onclick="window.location.href='index.html'" class="text-2xl font-bold text-blue-700 hover:text-blue-800 transition-colors cursor-pointer">Super Shop</button>
+                       <div class="flex items-center space-x-4">
+          <a href="catalog.html" class="nav-btn bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">Catalog</a>
+          <a href="customer-service.php" class="nav-btn bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">🎧 Customer Service</a>
+          <a href="product-recommendations.php" class="nav-btn bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">⭐ Recommendations</a>
+          <a href="order-tracking.php" class="nav-btn bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">Track Order</a>
+          <a href="return-policy.php" class="nav-btn bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">📜 Return Policy</a>
+          <a href="my-orders.php" class="nav-btn bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors" id="history-link">History</a>
+         <span id="auth-links">
+           <a href="login.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">Login</a>
+           <a href="register.html" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors ml-2">Register</a>
+         </span>
+       </div>
     </div>
-    <div>
-      <a href="catalog.html" class="mx-2 text-gray-700 hover:text-blue-700">Catalog</a>
-      <a href="cart.html" class="mx-2 text-gray-700 hover:text-blue-700">Cart</a>
-      <a href="orders.html" class="mx-2 text-gray-700 hover:text-blue-700">Orders</a>
-      <a href="my-orders.php" class="mx-2 text-gray-700 hover:text-blue-700" id="history-link">History</a>
-      <a href="returns.html" class="mx-2 text-gray-700 hover:text-blue-700">Returns</a>
-      <a href="feedback.html" class="mx-2 text-gray-700 hover:text-blue-700">Feedback</a>
-      <span id="auth-links">
-        <a href="login.html" class="mx-2 text-gray-700 hover:text-blue-700">Login</a>
-        <a href="register.html" class="mx-2 text-gray-700 hover:text-blue-700">Register</a>
-      </span>
-      <span id="user-info" class="hidden">
-        <a href="my-orders.php" class="mx-2 text-gray-700 hover:text-blue-700">History</a>
-        <span id="user-name" class="mx-2 text-gray-700"></span>
-        <button onclick="logout()" class="mx-2 text-red-600 hover:text-red-700">Logout</button>
-      </span>
-    </div>
+    
+         <div class="flex items-center space-x-4">
+       <div>
+         <button onclick="setTheme('theme-blue')" class="theme-btn w-6 h-6 bg-blue-500 rounded-full inline-block mx-1" title="Blue Theme"></button>
+         <button onclick="setTheme('theme-green')" class="theme-btn w-6 h-6 bg-green-500 rounded-full inline-block mx-1" title="Green Theme"></button>
+         <button onclick="setTheme('theme-pink')" class="theme-btn w-6 h-6 bg-pink-500 rounded-full inline-block mx-1" title="Pink Theme"></button>
+         <button onclick="setTheme('theme-yellow')" class="theme-btn w-6 h-6 bg-yellow-400 rounded-full inline-block mx-1" title="Yellow Theme"></button>
+       </div>
+       
+       <div id="user-info" class="hidden relative">
+         <button id="welcome-btn" onclick="toggleUserMenu()" class="user-menu-btn flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-md hover:shadow-lg transition-shadow">
+           <img id="user-avatar" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" alt="User" class="w-8 h-8 rounded-full object-cover">
+           <span id="user-name" class="text-gray-700 font-medium"></span>
+           <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+           </svg>
+         </button>
+         
+         <!-- Dropdown Menu -->
+         <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+           <a href="my-orders.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 nav-link">
+             <span class="mr-2">📋</span>Order History
+           </a>
+           <button id="dashboard-menu-btn" onclick="goToDashboard()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 nav-link">
+             <span class="mr-2">📊</span>Go to Dashboard
+           </button>
+           <hr class="my-1">
+           <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 nav-link">
+             <span class="mr-2">🚪</span>Logout
+           </button>
+         </div>
+               </div>
+        
+        <!-- Cart Section -->
+        <a href="cart.html" class="cart-btn flex items-center space-x-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m6 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+          </svg>
+          <span class="font-medium">Cart</span>
+        </a>
+      </div>
   </nav>
   
   <main class="max-w-7xl mx-auto py-8">
-    <!-- Hero Section -->
-    <section class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-white mb-4">Welcome to Super Shop</h1>
+    <!-- Hero Section with Background Image -->
+    <section class="hero-bg text-center mb-12 py-20 rounded-lg">
+      <h1 class="text-5xl font-bold text-white mb-4">Welcome to Super Shop</h1>
       <p class="text-xl text-white mb-6">Real-time shopping experience with live updates</p>
-      <a href="catalog.html" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">Shop Now</a>
+      <a href="catalog.html" class="hero-btn bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 text-lg">Shop Now</a>
     </section>
     
     <!-- Live Sections -->
@@ -165,15 +466,15 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <h3 class="text-lg font-semibold mb-2 text-white">Featured Products</h3>
-          <div id="featured" class="bg-white p-4 rounded shadow"></div>
+          <div id="featured" class="live-section-card bg-white p-4 rounded shadow"></div>
         </div>
         <div>
           <h3 class="text-lg font-semibold mb-2 text-white">Trending Now</h3>
-          <div id="trending" class="bg-white p-4 rounded shadow"></div>
+          <div id="trending" class="live-section-card bg-white p-4 rounded shadow"></div>
         </div>
         <div>
           <h3 class="text-lg font-semibold mb-2 text-white">Weekly Offers</h3>
-          <div id="offers" class="bg-white p-4 rounded shadow"></div>
+          <div id="offers" class="live-section-card bg-white p-4 rounded shadow"></div>
         </div>
       </div>
     </section>
@@ -183,176 +484,176 @@
       <h2 class="text-2xl font-bold mb-6 text-white">All Products</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         <!-- Electronics -->
-        <div class="bg-white p-3 rounded shadow" data-product-id="1">
-          <img src="https://via.placeholder.com/200/3B82F6/FFFFFF?text=Smart+Watch" alt="Smart Watch" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="1">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop" alt="Smart Watch" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Smart Watch</div>
           <div class="stock text-green-600 text-xs">Stock: 15</div>
-          <div class="text-gray-700 text-sm mb-2">$99.99</div>
-          <button onclick="addToCart(1, 'Smart Watch', 99.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳99.99</div>
+          <button onclick="addToCart(1, 'Smart Watch', 99.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="2">
-          <img src="https://via.placeholder.com/200/10B981/FFFFFF?text=Wireless+Earbuds" alt="Wireless Earbuds" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="2">
+          <img src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400&h=300&fit=crop" alt="Wireless Earbuds" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Wireless Earbuds</div>
           <div class="stock text-green-600 text-xs">Stock: 25</div>
-          <div class="text-gray-700 text-sm mb-2">$49.99</div>
-          <button onclick="addToCart(2, 'Wireless Earbuds', 49.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳49.99</div>
+          <button onclick="addToCart(2, 'Wireless Earbuds', 49.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="3">
-          <img src="https://via.placeholder.com/200/EF4444/FFFFFF?text=Laptop" alt="Laptop" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="3">
+          <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop" alt="Laptop" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Laptop</div>
           <div class="stock text-green-600 text-xs">Stock: 8</div>
-          <div class="text-gray-700 text-sm mb-2">$899.99</div>
-          <button onclick="addToCart(3, 'Laptop', 899.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳899.99</div>
+          <button onclick="addToCart(3, 'Laptop', 899.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="4">
-          <img src="https://via.placeholder.com/200/8B5CF6/FFFFFF?text=Bluetooth+Speaker" alt="Bluetooth Speaker" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="4">
+          <img src="https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop" alt="Bluetooth Speaker" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Bluetooth Speaker</div>
           <div class="stock text-green-600 text-xs">Stock: 20</div>
-          <div class="text-gray-700 text-sm mb-2">$89.99</div>
-          <button onclick="addToCart(4, 'Bluetooth Speaker', 89.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳89.99</div>
+          <button onclick="addToCart(4, 'Bluetooth Speaker', 89.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="5">
-          <img src="https://via.placeholder.com/200/F59E0B/FFFFFF?text=Smartphone" alt="Smartphone" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="5">
+          <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop" alt="Smartphone" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Smartphone</div>
           <div class="stock text-green-600 text-xs">Stock: 12</div>
-          <div class="text-gray-700 text-sm mb-2">$599.99</div>
-          <button onclick="addToCart(5, 'Smartphone', 599.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳599.99</div>
+          <button onclick="addToCart(5, 'Smartphone', 599.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="6">
-          <img src="https://via.placeholder.com/200/EC4899/FFFFFF?text=Tablet" alt="Tablet" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="6">
+          <img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop" alt="Tablet" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Tablet</div>
           <div class="stock text-green-600 text-xs">Stock: 18</div>
-          <div class="text-gray-700 text-sm mb-2">$299.99</div>
-          <button onclick="addToCart(6, 'Tablet', 299.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳299.99</div>
+          <button onclick="addToCart(6, 'Tablet', 299.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
         <!-- Fashion -->
-        <div class="bg-white p-3 rounded shadow" data-product-id="7">
-          <img src="https://via.placeholder.com/200/06B6D4/FFFFFF?text=Running+Shoes" alt="Running Shoes" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="7">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop" alt="Running Shoes" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Running Shoes</div>
           <div class="stock text-green-600 text-xs">Stock: 30</div>
-          <div class="text-gray-700 text-sm mb-2">$79.99</div>
-          <button onclick="addToCart(7, 'Running Shoes', 79.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳79.99</div>
+          <button onclick="addToCart(7, 'Running Shoes', 79.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="8">
-          <img src="https://via.placeholder.com/200/84CC16/FFFFFF?text=Denim+Jacket" alt="Denim Jacket" class="w-full h-32 object-cover rounded mb-2">
+        <div class="product-card bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="8">
+          <img src="https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=400&h=300&fit=crop" alt="Denim Jacket" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Denim Jacket</div>
           <div class="stock text-green-600 text-xs">Stock: 22</div>
-          <div class="text-gray-700 text-sm mb-2">$69.99</div>
-          <button onclick="addToCart(8, 'Denim Jacket', 69.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳69.99</div>
+          <button onclick="addToCart(8, 'Denim Jacket', 69.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="9">
-          <img src="https://via.placeholder.com/200/F97316/FFFFFF?text=Leather+Bag" alt="Leather Bag" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="9">
+          <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=300&fit=crop" alt="Leather Bag" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Leather Bag</div>
           <div class="stock text-green-600 text-xs">Stock: 15</div>
-          <div class="text-gray-700 text-sm mb-2">$129.99</div>
-          <button onclick="addToCart(9, 'Leather Bag', 129.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳129.99</div>
+          <button onclick="addToCart(9, 'Leather Bag', 129.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="10">
-          <img src="https://via.placeholder.com/200/6366F1/FFFFFF?text=Sunglasses" alt="Sunglasses" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="10">
+          <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=300&fit=crop" alt="Sunglasses" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Sunglasses</div>
           <div class="stock text-green-600 text-xs">Stock: 35</div>
-          <div class="text-gray-700 text-sm mb-2">$39.99</div>
-          <button onclick="addToCart(10, 'Sunglasses', 39.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳39.99</div>
+          <button onclick="addToCart(10, 'Sunglasses', 39.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="11">
-          <img src="https://via.placeholder.com/200/A855F7/FFFFFF?text=Wristwatch" alt="Wristwatch" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="11">
+          <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=300&fit=crop" alt="Wristwatch" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Wristwatch</div>
           <div class="stock text-green-600 text-xs">Stock: 10</div>
-          <div class="text-gray-700 text-sm mb-2">$159.99</div>
-          <button onclick="addToCart(11, 'Wristwatch', 159.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳159.99</div>
+          <button onclick="addToCart(11, 'Wristwatch', 159.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
         <!-- Home & Living -->
-        <div class="bg-white p-3 rounded shadow" data-product-id="12">
-          <img src="https://via.placeholder.com/200/DC2626/FFFFFF?text=Coffee+Maker" alt="Coffee Maker" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="12">
+          <img src="https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=400&h=300&fit=crop" alt="Coffee Maker" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Coffee Maker</div>
           <div class="stock text-green-600 text-xs">Stock: 12</div>
-          <div class="text-gray-700 text-sm mb-2">$129.99</div>
-          <button onclick="addToCart(12, 'Coffee Maker', 129.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳129.99</div>
+          <button onclick="addToCart(12, 'Coffee Maker', 129.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="13">
-          <img src="https://via.placeholder.com/200/EA580C/FFFFFF?text=Bedside+Lamp" alt="Bedside Lamp" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="13">
+          <img src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=300&fit=crop" alt="Bedside Lamp" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Bedside Lamp</div>
           <div class="stock text-green-600 text-xs">Stock: 28</div>
-          <div class="text-gray-700 text-sm mb-2">$45.99</div>
-          <button onclick="addToCart(13, 'Bedside Lamp', 45.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳45.99</div>
+          <button onclick="addToCart(13, 'Bedside Lamp', 45.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="14">
-          <img src="https://via.placeholder.com/200/CA8A04/FFFFFF?text=Kitchen+Mixer" alt="Kitchen Mixer" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="14">
+          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop" alt="Kitchen Mixer" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Kitchen Mixer</div>
           <div class="stock text-green-600 text-xs">Stock: 8</div>
-          <div class="text-gray-700 text-sm mb-2">$199.99</div>
-          <button onclick="addToCart(14, 'Kitchen Mixer', 199.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳199.99</div>
+          <button onclick="addToCart(14, 'Kitchen Mixer', 199.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="15">
-          <img src="https://via.placeholder.com/200/65A30D/FFFFFF?text=Wall+Clock" alt="Wall Clock" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="15">
+          <img src="https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=400&h=300&fit=crop" alt="Wall Clock" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Wall Clock</div>
           <div class="stock text-green-600 text-xs">Stock: 40</div>
-          <div class="text-gray-700 text-sm mb-2">$29.99</div>
-          <button onclick="addToCart(15, 'Wall Clock', 29.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳29.99</div>
+          <button onclick="addToCart(15, 'Wall Clock', 29.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="16">
-          <img src="https://via.placeholder.com/200/0891B2/FFFFFF?text=Throw+Pillow" alt="Throw Pillow" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="16">
+          <img src="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=400&h=300&fit=crop" alt="Throw Pillow" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Throw Pillow</div>
           <div class="stock text-green-600 text-xs">Stock: 50</div>
-          <div class="text-gray-700 text-sm mb-2">$24.99</div>
-          <button onclick="addToCart(16, 'Throw Pillow', 24.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳24.99</div>
+          <button onclick="addToCart(16, 'Throw Pillow', 24.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
         <!-- Sports & Fitness -->
-        <div class="bg-white p-3 rounded shadow" data-product-id="17">
-          <img src="https://via.placeholder.com/200/7C3AED/FFFFFF?text=Yoga+Mat" alt="Yoga Mat" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="17">
+          <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop" alt="Yoga Mat" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Yoga Mat</div>
           <div class="stock text-green-600 text-xs">Stock: 25</div>
-          <div class="text-gray-700 text-sm mb-2">$34.99</div>
-          <button onclick="addToCart(17, 'Yoga Mat', 34.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳34.99</div>
+          <button onclick="addToCart(17, 'Yoga Mat', 34.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="18">
-          <img src="https://via.placeholder.com/200/DB2777/FFFFFF?text=Dumbbells+Set" alt="Dumbbells Set" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="18">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" alt="Dumbbells Set" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Dumbbells Set</div>
           <div class="stock text-green-600 text-xs">Stock: 6</div>
-          <div class="text-gray-700 text-sm mb-2">$149.99</div>
-          <button onclick="addToCart(18, 'Dumbbells Set', 149.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳149.99</div>
+          <button onclick="addToCart(18, 'Dumbbells Set', 149.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="19">
-          <img src="https://via.placeholder.com/200/059669/FFFFFF?text=Basketball" alt="Basketball" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="19">
+          <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400&h=300&fit=crop" alt="Basketball" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Basketball</div>
           <div class="stock text-green-600 text-xs">Stock: 20</div>
-          <div class="text-gray-700 text-sm mb-2">$49.99</div>
-          <button onclick="addToCart(19, 'Basketball', 49.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳49.99</div>
+          <button onclick="addToCart(19, 'Basketball', 49.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
         <!-- Books & Stationery -->
-        <div class="bg-white p-3 rounded shadow" data-product-id="20">
-          <img src="https://via.placeholder.com/200/1E40AF/FFFFFF?text=Programming+Book" alt="Programming Book" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="20">
+          <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop" alt="Programming Book" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Programming Book</div>
           <div class="stock text-green-600 text-xs">Stock: 15</div>
-          <div class="text-gray-700 text-sm mb-2">$39.99</div>
-          <button onclick="addToCart(20, 'Programming Book', 39.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳39.99</div>
+          <button onclick="addToCart(20, 'Programming Book', 39.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
         
-        <div class="bg-white p-3 rounded shadow" data-product-id="21">
-          <img src="https://via.placeholder.com/200/9D174D/FFFFFF?text=Notebook+Set" alt="Notebook Set" class="w-full h-32 object-cover rounded mb-2">
+        <div class="bg-white p-3 rounded shadow hover:shadow-lg transition-shadow" data-product-id="21">
+          <img src="https://images.unsplash.com/photo-1531346680769-a1d79b57de5c?w=400&h=300&fit=crop" alt="Notebook Set" class="w-full h-32 object-cover rounded mb-2">
           <div class="font-semibold text-sm">Notebook Set</div>
           <div class="stock text-green-600 text-xs">Stock: 30</div>
-          <div class="text-gray-700 text-sm mb-2">$19.99</div>
-          <button onclick="addToCart(21, 'Notebook Set', 19.99)" class="w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
+          <div class="text-gray-700 text-sm mb-2">৳19.99</div>
+          <button onclick="addToCart(21, 'Notebook Set', 19.99)" class="add-to-cart-btn w-full bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Add to Cart</button>
         </div>
       </div>
     </section>
@@ -361,23 +662,23 @@
     <section class="mb-8">
       <h2 class="text-xl font-semibold mb-4 text-white">Why Shop With Us?</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded shadow text-center">
-          <div class="text-3xl mb-2">⚡</div>
+        <div class="feature-card bg-white p-4 rounded shadow text-center hover:shadow-lg transition-shadow">
+          <div class="feature-icon text-3xl mb-2">⚡</div>
           <h3 class="font-semibold mb-2">Live Stock Updates</h3>
           <p class="text-sm text-gray-600">Real-time inventory tracking</p>
         </div>
-        <div class="bg-white p-4 rounded shadow text-center">
-          <div class="text-3xl mb-2">🚚</div>
+        <div class="feature-card bg-white p-4 rounded shadow text-center hover:shadow-lg transition-shadow">
+          <div class="feature-icon text-3xl mb-2">🚚</div>
           <h3 class="font-semibold mb-2">Instant Order Tracking</h3>
           <p class="text-sm text-gray-600">Live status updates</p>
         </div>
-        <div class="bg-white p-4 rounded shadow text-center">
-          <div class="text-3xl mb-2">🔄</div>
+        <div class="feature-card bg-white p-4 rounded shadow text-center hover:shadow-lg transition-shadow">
+          <div class="feature-icon text-3xl mb-2">🔄</div>
           <h3 class="font-semibold mb-2">Easy Returns</h3>
           <p class="text-sm text-gray-600">5-day return policy</p>
         </div>
-        <div class="bg-white p-4 rounded shadow text-center">
-          <div class="text-3xl mb-2">💳</div>
+        <div class="feature-card bg-white p-4 rounded shadow text-center hover:shadow-lg transition-shadow">
+          <div class="feature-icon text-3xl mb-2">💳</div>
           <h3 class="font-semibold mb-2">Multiple Payments</h3>
           <p class="text-sm text-gray-600">bKash, Nagad, Card</p>
         </div>

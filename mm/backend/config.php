@@ -1,7 +1,7 @@
 <?php
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'supershop');
+define('DB_NAME', 'super_shop');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
@@ -11,7 +11,7 @@ define('WS_PORT', 8080);
 
 // API configuration
 define('API_VERSION', 'v1');
-define('ALLOWED_ORIGINS', ['http://localhost:8000', 'http://127.0.0.1:8000']);
+define('ALLOWED_ORIGINS', ['http://localhost:8000', 'http://127.0.0.1:8000', 'http://127.0.0.1:5504']);
 
 // Error reporting
 error_reporting(E_ALL);

@@ -157,7 +157,7 @@ class RealtimeClient {
             offersElement.innerHTML = `
                 <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
                     <p class="font-bold">New Product Available!</p>
-                    <p>${data.product.name} - $${data.product.price}</p>
+                    <p>${data.product.name} - ৳${data.product.price}</p>
                 </div>
             `;
         }
@@ -261,4 +261,23 @@ window.addEventListener('beforeunload', () => {
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = RealtimeClient;
-} 
+}
+
+// Add this to your loadUsersData function
+async function loadUsersData() {
+    try {
+        console.log('Fetching users data...');
+        const response = await fetch('backend/api/admin.php?action=users');
+        console.log('Response received:', response);
+        const data = await response.json();
+        console.log('Users data:', data);
+        
+        if (data.success) {
+            // Update your UI with data.data.users
+        } else {
+            console.error('Failed to load users:', data.error);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
