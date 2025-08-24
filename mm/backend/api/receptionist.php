@@ -353,7 +353,7 @@ class ReceptionistAPI {
             $stmt = $this->pdo->prepare("
                 SELECT COUNT(*) as count
                 FROM products
-                WHERE stock_quantity <= 10 AND is_active = 1
+                WHERE stock_quantity <= 20 AND is_active = 1
             ");
             $stmt->execute();
             $lowStockItems = $stmt->fetch()['count'];
@@ -377,6 +377,36 @@ class ReceptionistAPI {
             
         } catch (Exception $e) {
             return $this->error('Failed to get dashboard stats: ' . $e->getMessage(), 500);
+        }
+    }
+
+    // Get low stock items details (New function)
+    public function getLowStockItems() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            return $this->error('Method not allowed', 405);
+        }
+        
+        if (!$this->checkReceptionistAuth()) {
+            return $this->error('Access denied', 403);
+        }
+        
+        try {
+            // Get low stock items with details
+            $stmt = $this->pdo->prepare("
+                SELECT id, name, category, stock_quantity, price, description
+                FROM products
+                WHERE stock_quantity <= 20 AND is_active = 1
+                ORDER BY stock_quantity ASC
+            ");
+            $stmt->execute();
+            $lowStockItems = $stmt->fetchAll();
+            
+            return $this->success([
+                'low_stock_items' => $lowStockItems
+            ]);
+            
+        } catch (Exception $e) {
+            return $this->error('Failed to get low stock items: ' . $e->getMessage(), 500);
         }
     }
     
@@ -727,6 +757,9 @@ switch ($action) {
         break;
     case 'dashboard_stats':
         $receptionist->getDashboardStats();
+        break;
+    case 'get_low_stock_items':
+        $receptionist->getLowStockItems();
         break;
     case 'process_return':
         $receptionist->processReturn();

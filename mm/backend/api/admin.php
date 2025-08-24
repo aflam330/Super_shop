@@ -96,8 +96,8 @@ function handleDashboardStats($pdo) {
         $stmt->execute();
         $total_products = $stmt->fetch()['total_products'];
         
-        // Low stock products (less than 10)
-        $stmt = $pdo->prepare("SELECT COUNT(*) as low_stock FROM products WHERE stock_quantity < 10 AND is_active = 1");
+        // Low stock products (less than or equal to 20)
+        $stmt = $pdo->prepare("SELECT COUNT(*) as low_stock FROM products WHERE stock_quantity <= 20 AND is_active = 1");
         $stmt->execute();
         $low_stock = $stmt->fetch()['low_stock'];
         
@@ -277,7 +277,7 @@ function handleLowStockProducts($pdo) {
         $stmt = $pdo->prepare("
             SELECT id, name, category, stock_quantity, price
             FROM products
-            WHERE stock_quantity < 10 AND is_active = 1
+            WHERE stock_quantity <= 20 AND is_active = 1
             ORDER BY stock_quantity ASC
         ");
         $stmt->execute();
@@ -399,7 +399,7 @@ function handleGetSettings($pdo) {
         // For now, return default settings
         $settings = [
             'return_policy_days' => 5,
-            'low_stock_threshold' => 10,
+            'low_stock_threshold' => 20,
             'tax_rate' => 0.10,
             'free_shipping_threshold' => 500
         ];

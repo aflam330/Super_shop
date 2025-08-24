@@ -77,7 +77,7 @@
                 <h1 class="text-3xl font-bold text-white mb-6">Admin Dashboard</h1>
                 
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-lg shadow">
                         <div class="flex items-center">
                             <div class="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -130,6 +130,26 @@
                             <div class="ml-4">
                                 <p class="text-sm font-medium text-gray-600">Today's Sales</p>
                                 <p id="today-sales" class="text-2xl font-semibold text-gray-900">৳0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center">
+                                    <p class="text-sm font-medium text-gray-600">Active Users</p>
+                                    <div class="ml-2 flex items-center">
+                                        <div id="live-indicator" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                        <span class="ml-1 text-xs text-green-600 font-medium">LIVE</span>
+                                    </div>
+                                </div>
+                                <p id="active-users" class="text-2xl font-semibold text-gray-900">0</p>
                             </div>
                         </div>
                     </div>
@@ -553,9 +573,46 @@
                     document.getElementById('low-stock').textContent = data.data.low_stock;
                     document.getElementById('expired-products').textContent = data.data.expired_products;
                     document.getElementById('today-sales').textContent = `৳${data.data.today_sales.toFixed(2)}`;
+                    document.getElementById('active-users').textContent = data.data.total_users;
                 }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load only active users count for live updates
+        async function loadActiveUsersCount() {
+            try {
+                const response = await fetch('backend/api/admin.php?action=dashboard_stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const currentCount = document.getElementById('active-users').textContent;
+                    const newCount = data.data.total_users;
+                    
+                    // Only update if the count has changed
+                    if (currentCount != newCount) {
+                        document.getElementById('active-users').textContent = newCount;
+                        
+                        // Show a subtle notification for the change
+                        const activeUsersCard = document.getElementById('active-users').closest('.bg-white');
+                        activeUsersCard.style.transition = 'all 0.3s ease';
+                        activeUsersCard.style.transform = 'scale(1.05)';
+                        activeUsersCard.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+                        
+                        setTimeout(() => {
+                            activeUsersCard.style.transform = 'scale(1)';
+                            activeUsersCard.style.boxShadow = '';
+                        }, 300);
+                        
+                        // Show notification if significant change
+                        if (Math.abs(parseInt(currentCount) - parseInt(newCount)) > 0) {
+                            showRealTimeNotification(`Active users updated: ${newCount}`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading active users count:', error);
             }
         }
 
@@ -1325,12 +1382,31 @@
                 // Set admin name
                 document.getElementById('admin-name').textContent = 'Admin User';
                 loadDashboardData();
+                
+                // Start live updates for active users count
+                startLiveUpdates();
             } else {
                 console.error('Failed to authenticate admin');
                 // Still load dashboard but with fallback data
                 loadDashboardData();
+                startLiveUpdates();
             }
         });
+
+        // Start live updates for active users
+        function startLiveUpdates() {
+            // Update active users count every 10 seconds
+            setInterval(loadActiveUsersCount, 10000);
+            
+            // Also update when user becomes active (tab becomes visible)
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    loadActiveUsersCount();
+                }
+            });
+            
+            console.log('Live updates started for Active Users count');
+        }
 
         // Form submissions for inventory management
         document.getElementById('addProductForm').addEventListener('submit', function(e) {

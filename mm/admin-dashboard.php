@@ -21,8 +21,8 @@ try {
     $stmt->execute();
     $total_products = $stmt->fetch()['total'];
     
-    // Low stock products (less than 10)
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM products WHERE stock_quantity < 10 AND is_active = 1");
+    // Low stock products (less than 20)
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM products WHERE stock_quantity < 20 AND is_active = 1");
     $stmt->execute();
     $low_stock = $stmt->fetch()['total'];
     
